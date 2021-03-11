@@ -227,6 +227,18 @@
 
 ## External Data Source
 - Provides an interface between Terraform and an external program
+- Example:
+
+      data "external" "example" {
+        program = ["python", "${path.module}/example-data-source.py"]
+
+        query = {
+        # arbitrary map from strings to strings, passed
+        # to the external program as the data query.
+          id = "abc123"
+        }
+      }
+
 - Requirements:
   - The `program` must read all of the data passed to it on `stdin`
     - The `program` must parse all of the data passed to it as a JSON object
@@ -240,25 +252,14 @@
     - It must print a human-readable error message (ideally a single line) to `stderr`
     - `stdout` is ignored for an error
 - Terraform will re-run `program` each time that state is refreshed.
-- Example:
-
-      data "external" "example" {
-        program = ["python", "${path.module}/example-data-source.py"]
-
-        query = {
-        # arbitrary map from strings to strings, passed
-        # to the external program as the data query.
-          id = "abc123"
-        }
-      }
-
   - `program` is of type list(string)
     - First element is the program to run, and subsequent elements are optional commandline arguments.
     - Terraform does not execute the program through a shell, so it is not necessary to escape shell metacharacters nor add quotes around arguments containing spaces.
   - `query` is of type map(string)
     - Optional
     - These values are passed to the program as query arguments.
-- To use the output produced from the `program`:  data.external.<name>.result.<someAttribute>
+- How to reference the data created from the external data source:
+  - `data.external.<name>.result.<someAttribute>`
 
 ## Template File Data Source
 - Defining a Template File Data Source:
