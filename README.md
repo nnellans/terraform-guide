@@ -1,7 +1,5 @@
 # State
 
----
-
 ## State Files
 - The State file uses a custom JSON format
 - Never edit this file manually
@@ -57,8 +55,6 @@
 
 # Syntax
 
----
-
 ## Heredoc / multiline strings
 
     user_data = <<-EOF
@@ -80,8 +76,6 @@
 - `/*` and `*/` are start & end delimiters for multi-line comments
 
 # Input Variables
-
----
 
 ## Defining a variable
 - Typically, done in a separate `variables.tf` file
@@ -168,8 +162,6 @@
 
 # Output Variables
 
----
-
 - These are used when you want to output values in one terraform configuration, and consume them from a separate terraform configuration.
 - Defining an output variable:
 
@@ -187,8 +179,6 @@
 
 # Local Values
 
----
-
 - Normal Input Variables do not allow expressions or interpolations in their values, but that is totally acceptable with Local Values.
 - Defining Local Values:
 
@@ -203,8 +193,6 @@
   - `local.third[0]`
 
 # Data Sources
-
----
 
 - Data Sources are Read-Only!!!
 - Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform.
@@ -292,8 +280,6 @@
   - `data.template_file.<dataSourceName>.rendered`
 
 # Loops
-
----
 
 ## count Parameter
 - Every terraform resource has a parameter you can use called `count`
@@ -407,8 +393,6 @@
 
 # "for" Expressions
 
----
-
 ## [for] Expressions – return a Tuple
 
 ### Input a List, return a Tuple
@@ -440,8 +424,6 @@
 - The rest is the same as above
 
 # String Directives
-
----
 
 ## for Loops
 - **Work In Progress**
@@ -478,8 +460,6 @@
 
 # Modules
 
----
-
 - A terraform Module is nothing more than a folder full of .tf files.
   - All the .tf files you have been writing in the root folder are considered the “root module”
   - The module’s folder should include the usual suspects:  `main.tf`, `variables.tf`, `outputs.tf`
@@ -511,8 +491,6 @@
 
 # Lifecycle Settings
 
----
-
     resource "azurerm_some_resource" "someName" {
       key = value
 
@@ -535,8 +513,6 @@
   - This is a list of resource attributes that you want Terraform to ignore.  If the value of that attribute differs in real life vs. the Terraform code, then Terraform will just ignore it and not try to make any changes.
 
 # Terraform Commands
-
----
 
 ## terraform apply
 - work in progress
@@ -579,8 +555,6 @@
 - To work with terraform workspaces
 
 # .gitignore File
-
----
 
 ## .terraform
 - Terraform’s scratch directory, is created inside each config folder where you run `terraform init` and includes the downloaded providers.
