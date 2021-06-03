@@ -1,19 +1,19 @@
-# State
+# Terraform State
 
 ## State Files
 - The State file uses a custom JSON format
 - Never edit this file manually
 - You can use `terraform import` and `terraform state` commands to modify the state
-- Do NOT store state files in version control (git)
-  - Version Control Systems have spotty support for locking, so two teammates could potentially make simultaneous changes
-  - State files store everything in plain text, even passwords and secrets
+- Do NOT store state files in Version Control Systems:
+  - State files are in plain text, including any passwords and secrets!  Secure and lock down your state files!
+  - VCS's don't have the best support for file locking.  This means that two teammates could potentially make simultaneous changes to a state file.
 
 ## Local Backend
-- A file placed into the current directory, named `terraform.tfstate`
+- This is simply a file placed into the current directory, named `terraform.tfstate`
 - Problems:
   - The file is local to your computer and can not be shared by other teammates
-  - You can only use 1 local file, so no way to break it up into multiple state files for multiple environments (not counting workspaces)
-- You can start with a Local Backend, then add a Remote Backend to your code later, and Terraform will recognize the local state file and prompt you to copy it to the new Remote Backend.
+  - You are restricted to only 1 local file.  So, there is no way to break up your code to use multiple state files.  (Terraform Workspaces are an exception)
+- You can start with a Local Backend, and add a Remote Backend to your code later.  After you add the Remote Backend, Terraform will recognize the local state file and prompt you to copy it to the new Remote Backend.
 
 ## Remote Backend
 - This stores your state files into remote, shared storage, like Azure Storage, AWS S3, etc.
@@ -35,23 +35,23 @@
   The keys & values are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
-- Remote Backend can NOT use terraform variables or references.
+- Remote Backends can NOT use terraform variables or references.
   - Terraform sets the Remote Backend as the first step, even before it processes variables.
   - You do not want to put sensitive values directly in this block, so instead you could use something like partial configuration.  This is where the backend block is missing the sensitive key/value pairs and instead you provide them via switches to terraform.exe:
     - `terraform.exe -backend-config="key=value" -backend-config="key=value"`
     - `terraform.exe -backend-config=backend.hcl`
       - Where backend.hcl is a file, listing only the key/value pairs that are needed.
       - Do NOT check this file into version control if it contains sensitive values.
-    - Or, you could set special environment variables that the remote backend can read from.  Each remote backend supports its own special environment variables.  Check the docs.
+    - Or, you could set special environment variables that the remote backend can read from.  Each remote backend supports its own special environment variables.  Check the docs for your remote backend of choice.
 
-## Workspaces
+## Terraform Workspaces
 - You may want to consider these as 'local' Workspaces, as they are different from Terraform Cloud Workspaces.
 - If you create Workspaces, they each get their own state file.  However, all Workspaces still share the same Backend.
 - They are placed in a new subfolder called `env:` and each workspace gets its own subfolder under that:
   - `<backend>\env:\workspace1\terraform.tfstate`
   - `<backend>\env:\workspace2\terraform.tfstate`
 - Switching workspaces is equivalent to changing the path where your state file is stored
-- These are confusing, recommendation is to stay away from these, if possible.
+- These are confusing, stay away from these, if possible
 
 # Syntax
 
@@ -67,7 +67,7 @@
     strings will go here
     EOF
 
-- `EOF` can be any word you choose
+- `EOF` can be replaced with any word you choose
 - If you use `<<` then the string will include any whitespace, if you use `<<-` then the string can be indented however you like to maintain readability.  Terraform will remove any whitespace in the front automatically.
 
 ## Comments
@@ -78,7 +78,7 @@
 # Input Variables
 
 ## Defining a variable
-- Typically, done in a separate `variables.tf` file
+- Typically, this is done in a separate `variables.tf` file
 
       variable "Name" {
         description = "put a good description here"
@@ -96,8 +96,8 @@
   - Setting environment variables with the name of `TF_VAR_<varName>`
     - Linux:  `export TF_VAR_varName=value`
   - Using a file with a `.tfvars` extension that lists variable names and their values.
-    - Terraform will automatically load your file if it is placed in your config directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
-    - Pass your tfvars file with the `-var-file` switch: `terraform plan -var-file=somefile.tfvars`
+    - Option 1: Terraform will automatically load your file if it is placed in your config directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
+    - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform plan -var-file=somefile.tfvars`
 
 ## Using a variable
 - `var.name`
@@ -108,7 +108,7 @@
   - `type = list(string)`
   - `type = list(number)`
   - `type = list`
-    - This is shorthand for `list(any)`.  But the list values must all be of the same type (string, number, etc.)
+    - This is shorthand for `list(any)`.  But, the list values must all be of the same type (string, number, etc.)
     - This shorthand is not recommended any more.
 - Setting the value of a list variable:
   - `listName = [ "first", "second", "third" ]`
@@ -130,7 +130,7 @@
   - `type = map(number)`
     - This defines a map where all the values are numbers.
   - `type = map`
-    - This is shorthand for `map(any)`.  But the map values must all be the same type (string, number, etc.)
+    - This is shorthand for `map(any)`.  But, the map values must all be the same type (string, number, etc.)
     - This shorthand is not recommended any more.
 - Setting the map variable, two options:
   - Put each pair on a new line.
@@ -171,7 +171,7 @@
         sensitive   = true
       }
 
-  - Typically, done in a separate `outputs.tf` file
+  - Typically, this is done in a separate `outputs.tf` file
   - `value` is the only required parameter.
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
 - Using an Output Variable
