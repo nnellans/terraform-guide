@@ -3,7 +3,7 @@
 ## State Files
 - The State file uses a custom JSON format
 - Never edit this file manually
-- You can use `terraform import` and `terraform state` commands to modify the state
+  - Instead, you can use `terraform import` and `terraform state` commands to modify the state
 - Do NOT store state files in Version Control Systems:
   - State files are in plain text, including any passwords and secrets!  Secure and lock down your state files!
   - VCS's don't have the best support for file locking.  This means that two teammates could potentially make simultaneous changes to a state file.
