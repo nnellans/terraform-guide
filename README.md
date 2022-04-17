@@ -133,9 +133,9 @@ EOF
     - This is shorthand for `list(any)`.  But, the list values must still all be the same type (string, number, etc.)
     - This shorthand is not recommended any more
 - Setting the value of a list variable:
-- 
+
   ```terraform
-  `listName = [ "first", "second", "third" ]
+  listName = [ "first", "second", "third" ]
   ```
 
 - Using a specific value from the list:  `var.listName[3]`
