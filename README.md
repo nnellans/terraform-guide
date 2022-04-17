@@ -42,33 +42,35 @@
     - `terraform.exe -backend-config=backend.hcl`
       - Where backend.hcl is a file which contains only the key/value pairs that are needed
       - Do NOT check this file into version control if it contains sensitive values
-    - Or, you could set special environment variables that the remote backend will automatically read from.  Each remote backend supports its own special environment variables.  Check the docs for your remote backend of choice.
+    - Or, you could set special environment variables that the Remote Backend will automatically read from.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice.
 
 ## Terraform Workspaces
-- You may want to consider these as 'local' Workspaces, as they are different from Terraform Cloud Workspaces.
-- If you create Workspaces, they each get their own state file.  However, all Workspaces still share the same Backend.
+- You may want to consider these as 'local' Workspaces, as they are different from Terraform Cloud Workspaces
+- If you create Workspaces, they each get their own state file.  However, all Workspaces still share the same Backend
 - They are placed in a new subfolder called `env:` and each workspace gets its own subfolder under that:
   - `<backend>\env:\workspace1\terraform.tfstate`
   - `<backend>\env:\workspace2\terraform.tfstate`
 - Switching workspaces is equivalent to changing the path where your state file is stored
-- These are confusing, stay away from these, if possible
+- These are confusing. If possible, stay away from these
 
 # Syntax
 
 ## Heredoc / multiline strings
 
-    user_data = <<-EOF
-                indented multi-line
-                strings will go here
-                EOF
+```terraform
+user_data = <<-EOF
+            indented multi-line
+            strings will go here
+            EOF
     
-    user_data = <<EOF
-    non-indented multi-line
-    strings will go here
-    EOF
+user_data = <<EOF
+non-indented multi-line
+strings will go here
+EOF
+```
 
 - `EOF` can be replaced with any word you choose
-- If you use `<<` then the string will include any whitespace, if you use `<<-` then the string can be indented however you like to maintain readability.  Terraform will remove any whitespace in the front automatically.
+- If you use `<<` then the string will include any whitespace, if you use `<<-` then the string can be indented however you like to maintain readability.  Terraform will remove any whitespace in the front automatically
 
 ## Comments
 - `#` begins a single-line comment, this is the default comment style
@@ -80,41 +82,51 @@
 ## Defining a variable
 - Typically, this is done in a separate `variables.tf` file
 
-      variable "Name" {
-        description = "put a good description here"
-        type        = string,number,bool,list,map,set,object,tuple,any
-        default     = set a default value here
-      }
+  ```terraform
+  variable "Name" {
+    description = "put a good description here"
+    type        = string,number,bool,list,map,set,object,tuple,any
+    default     = set a default value here
+  }
+  ```
 
 - All three parameters are optional
 - If `type` is omitted, then it is assumed to be "any"
 - `type` can be a combination of different options:  `list(number)`
-- Setting the value of the variable:
+- How to set the value of the variable:
   - If not set by any other method, then terraform will interactively prompt you for a value when you run `terraform apply`
-  - You can set a `default` value inside the variable definition.  Careful, as this is clear text.
+  - You can set a `default` value inside the variable definition.  Careful, as this is clear text
   - You can pass a value with the `-var` switch:  `terraform plan -var "name=value"`
   - Setting environment variables with the name of `TF_VAR_<varName>`
     - Linux:  `export TF_VAR_varName=value`
-  - Using a file with a `.tfvars` extension that lists variable names and their values.
+  - Using a file with a `.tfvars` extension that lists variable names and their values
     - Option 1: Terraform will automatically load your file if it is placed in your config directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
     - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform plan -var-file=somefile.tfvars`
 
 ## Using a variable
 - `var.name`
-- Using a variable inside of a string (interpolation):  `"some string ${var.name} some more string"`
+- Using a variable inside of a string (interpolation):
+  
+  ```terraform
+  "some string ${var.name} some more string"
+  ```
 
-## List Variables
+## List/Array Variables
 - Examples:
   - `type = list(string)`
   - `type = list(number)`
   - `type = list`
-    - This is shorthand for `list(any)`.  But, the list values must all be of the same type (string, number, etc.)
-    - This shorthand is not recommended any more.
+    - This is shorthand for `list(any)`.  But, the list values must still all be the same type (string, number, etc.)
+    - This shorthand is not recommended any more
 - Setting the value of a list variable:
-  - `listName = [ "first", "second", "third" ]`
+- 
+  ```terraform
+  `listName = [ "first", "second", "third" ]
+  ```
+
 - Using a specific value from the list:  `var.listName[3]`
-  - The first index is zero [0]
-- List Functions:
+- Terraform lists are zero-based, so the the first entry is `var.listName[0]`
+- Some example List Functions:
   - Find the number of items inside a list:  `length(var.listName)`
 
 ## Tuple Variables
