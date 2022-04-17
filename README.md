@@ -91,17 +91,31 @@ EOF
   ```
 
 - All three parameters are optional
-- If `type` is omitted, then it is assumed to be "any"
+- If `type` is omitted, then it is assumed to be `any`
 - `type` can be a combination of different options:  `list(number)`
 - How to set the value of the variable:
   - If not set by any other method, then terraform will interactively prompt you for a value when you run `terraform apply`
   - You can set a `default` value inside the variable definition.  Careful, as this is clear text
-  - You can pass a value with the `-var` switch:  `terraform plan -var "name=value"`
+  - You can pass a value with the `-var` switch:
+
+    ```bash
+    terraform plan -var "name=value"
+    ```
+
   - Setting environment variables with the name of `TF_VAR_<varName>`
-    - Linux:  `export TF_VAR_varName=value`
+    - Linux:
+
+      ```bash
+      export TF_VAR_varName=value
+      ```
+
   - Using a file with a `.tfvars` extension that lists variable names and their values
     - Option 1: Terraform will automatically load your file if it is placed in your config directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
-    - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform plan -var-file=somefile.tfvars`
+    - Option 2: Pass your tfvars file with the `-var-file` switch:
+
+      ```bash
+      terraform plan -var-file=somefile.tfvars
+      ```
 
 ## Using a variable
 - `var.name`
