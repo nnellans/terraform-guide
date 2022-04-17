@@ -1,48 +1,48 @@
 # Terraform State
 
 ## State Files
-- The State file uses a custom JSON format
-- Never edit this file manually
+- State files use a custom JSON format
+- You should never edit this file manually
   - Instead, you can use `terraform import` and `terraform state` commands to modify the state
-- Do NOT store state files in Version Control Systems:
-  - State files are stored as plain text, including any passwords and secrets!  Secure and lock down your state files!
-  - VCS's don't have the best support for file locking.  This means that two teammates could potentially make simultaneous changes to a state file.
+- Never store your state files in Version Control Systems:
+  - State files are stored in plain text, including any passwords and secrets!
+  - Make sure your state files are stored in a secure location and accessible only by principals who require access
 
 ## Local Backend
 - This is simply a file placed into the current directory, named `terraform.tfstate`
 - Problems:
-  - The file is local to your computer and can not be shared by other teammates
-  - You are restricted to only 1 local file.  So, there is no way to break up your code to use multiple state files.  (Terraform Workspaces are an exception)
-- You can start with a Local Backend, and add a Remote Backend to your code later.  After you add the Remote Backend, Terraform will recognize the local state file and prompt you to copy it to the new Remote Backend.
+  - The state file is local to your computer, and can not be shared by other teammates
+  - You are restricted to using only 1 local state file
+- You can start with a Local Backend, and later you can add a Remote Backend to your code. Terraform will recognize the local state file and prompt you to copy it to the new Remote Backend
 
 ## Remote Backend
-- This stores your state files into remote, shared storage, like Azure Storage, AWS S3, etc.
-- Terraform will:
-  - automatically load the state file from the Remote Backend every time you run a `plan` or `apply`
-  - automatically store the state file into the Remote Backend after each `apply`
+- This stores your state files into remote, shared storage (like Azure Storage, AWS S3, etc.)
 - Most Remote Backends support:
-  - file locking, so only 1 person can run an `apply` at a time
-  - encryption at rest and in transit
+  - File locking, so only 1 person can run a `terraform apply` command at a time
+  - Encryption at rest
+  - Encryption in transit
 - Configuring a Remote Backend is done in the root terraform block:
 
-      terraform {
-        backend "azurerm" {
-          key1 = value1
-          key2 = value2
-        }
-      }
+  ```terraform
+  terraform {
+    backend "azurerm" {
+      key1 = value1
+      key2 = value2
+    }
+  }
+  ```
 
-  The keys & values are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
+  The keys & values mentioned above are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
-- Remote Backends can NOT use terraform variables or references.
-  - Terraform sets the Remote Backend as the first step, even before it processes variables.
+- Remote Backends can NOT use terraform variables or references
+  - Terraform sets the Remote Backend as the very first step, even before it processes variables
   - You do not want to put sensitive values directly in this block, so instead you could use something like partial configuration.  This is where the backend block is missing the sensitive key/value pairs and instead you provide them via switches to terraform.exe:
     - `terraform.exe -backend-config="key=value" -backend-config="key=value"`
     - `terraform.exe -backend-config=backend.hcl`
-      - Where backend.hcl is a file, listing only the key/value pairs that are needed.
-      - Do NOT check this file into version control if it contains sensitive values.
-    - Or, you could set special environment variables that the remote backend can read from.  Each remote backend supports its own special environment variables.  Check the docs for your remote backend of choice.
+      - Where backend.hcl is a file which contains only the key/value pairs that are needed
+      - Do NOT check this file into version control if it contains sensitive values
+    - Or, you could set special environment variables that the remote backend will automatically read from.  Each remote backend supports its own special environment variables.  Check the docs for your remote backend of choice.
 
 ## Terraform Workspaces
 - You may want to consider these as 'local' Workspaces, as they are different from Terraform Cloud Workspaces.
