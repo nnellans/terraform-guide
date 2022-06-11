@@ -6,8 +6,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 ### Configuration Files
 - Files that contain Terraform code are called "configuration files"
-- Configuration Files can in the typical, native format which uses the `.tf` file extension, or they can be in the alternate JSON format which uses the `.tf.json` file extension.
-- This guide will be focused strictly on the native form using the `.tf` file extension.
+- Configuration Files can in the typical, native format which uses the `.tf` file extension, or they can be in the alternate JSON format which uses the `.tf.json` file extension.  This guide will be focused strictly on the native form using the `.tf` file extension.
 
 ### Root Module
 - When you run terraform commands such as `plan` or `apply` you run it against a directory.
