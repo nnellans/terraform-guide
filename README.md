@@ -105,7 +105,7 @@ variable "Name" {
 - `type` can be a combination of different options:  `list(number)`
 
 ### How to set values of Variables:
-- You can set a `default` value inside the Variable definition.  Careful, as this is clear text.
+- You can set a `default` value inside the Variable definition
 - Set an environment variable with the value you want to use, and the name of `TF_VAR_<varName>`
   - Linux: `export TF_VAR_varName=value`
 - Using a file with a `.tfvars` extension that lists Variable names and their values
