@@ -114,6 +114,11 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - Option 1: Terraform will automatically load your file if it is placed in your Root Module directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
   - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform plan -var-file=somefile.tfvars`
 - If not set by any other method, then Terraform will interactively prompt you for a value when you run `terraform apply`
+- Values are loaded in the following order, with the later options taking precedence over earlier ones:
+  - Environment Variables
+  - `terraform.tfvars` files
+  - `*.auto.tfvars` files
+  - `-var` and `-var-file` commandline options, in the order they are given
 
 ### Using a variable
 - `var.name`
@@ -445,35 +450,43 @@ data "template_file" "name" {
     - `<inlineBlockToDuplicate>.key` = the key of the current item in the Map
     - `<inlineBlockToDuplicate>.value` = the value of the current item in the Map
 
-# "for" Expressions
+# For Expressions
+- `for` expressions take an input of a List, Set, Tuple, Map, or Object
+- `for` expressions output:
+  - a Tuple if you use square brackets `[ ]`
+  - an Object if you use curly brackets `{ }`
 
-## [for] Expressions – return a Tuple
+### [Square Brackets] return a Tuple
 
-### Input a List, return a Tuple
+#### Input a List, return a Tuple
 - `newList = [for <item> in var.List : <output> <condition>]`
   - `<item>` is the local variable name to assign to each item in the list
   - `<output>` is what to put into the resultant List, it can be an expression that modifies the `<item>` in some way
   - `<condition>` is optional and you could use it to further refine what values go into the resultant List
+- `newList = [for <index>, <item> in var.List : <output> <condition>]`
+  - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
 - Example:
   - `newList = [for name in var.List : upper(name) if length(name) < 5]`
   - This looks at `var.List` and converts each entry to uppercase, returns only the names that are less than 5 characters, and stores the modified entries in `newList`
 
-### Input a Map, return a Tuple
+#### Input a Map, return a Tuple
 - `newList = [for <key>, <value> in var.Map : <output> <condition>]`
 - The rest is the same as above
-- Example: `newList = [for first, last in var.Map : “Hi I’m ${first}, and my last name is ${last}!”]`
+- Example: `newList = [for first, last in var.Map : “${first} ${last}”]`
 
-## {for} Expressions – return an Object
+### {Curly Brackets} return an Object
 - Notice that this uses curly brackets instead of square brackets
 - Also notice the arrow sign `=>` separating `outputKey` & `outputValue`
 
-### Input a List, return an Object
+#### Input a List, return an Object
 - `newMap = {for <item> in var.List : <outputKey> => <outputValue> <condition>}`
   - `<item>` is the local variable name to assign to each item in the list
   - `<outputKey>` and `<outputValue>` is what to put into the resultant Map, they can be expressions that modify the `<item>` in some way
   - `<condition>` is optional and you could use it to further refine what key/value pairs go into the resultant Map
+- `newMap = {for <index>, <item> in var.List : <outputKey> => <outputValue> <condition>}`
+  - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
 
-### Input a Map, return an Object
+#### Input a Map, return an Object
 - `newMap = {for <key>, <value> in var.Map : <outputKey> => <outputValue> <condition>}`
 - The rest is the same as above
 
