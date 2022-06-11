@@ -25,7 +25,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - File: `variables.tf`
   - Contains all of your `variable` blocks
 - File: `versions.tf`
-  - Contains your top-level `terraform` block as well as `provider` configuration blocks
+  - Contains your top-level `terraform` block and all of your `provider` configuration blocks
   - This one is fairly new and not always found.  If it does not exist, then the information is typically found at the top of `main.tf` instead.
   - This one can also sometimes be found using the name `terraform.tf`
 
@@ -36,7 +36,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - You should NEVER manually edit State Files
   - Instead, use commands like `terraform import` and `terraform state` to modify the state
 - You should NEVER store your State Files in Version Control Systems like Git:
-  - State Files often include passwords and sensitive information, and State Files are stored in plain text!  Therefore, it would be a bad idea to checkin a plain text file that includes passwords.
+  - State Files often include passwords and sensitive information, and State Files are stored in plain text!  You do NOT want a file like this stored in your Git repository.
 - Make sure your State Files are stored in a secure location and accessible only by users or accounts who require access
 
 ### Local Backend
@@ -49,17 +49,18 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 ### Remote Backend
 - A Remote Backend stores your State Files in remote shared storage (like Azure Storage Accounts, AWS S3 Buckets, etc.)
-- Most Remote Backends support:
-  - File locking, so only 1 person can run a `terraform apply` command at a time
+- - Most Remote Backends support:
   - Encryption at rest
   - Encryption in transit
-- Configuring a Remote Backend is done in the root `terraform` block:
+  - File locking, so only 1 person can run a `terraform apply` command at a time
+- Configuring a Remote Backend is done in a `backend` block inside the root `terraform` block:
 
   ```terraform
   terraform {
     backend "azurerm" {
       key1 = value1
       key2 = value2
+      key3 = value3
     }
   }
   ```
@@ -68,8 +69,8 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
   - Read the documentation for your chosen Remote Backend type for more information.
-- Remote Backends can NOT use Terraform variables or references, these values must be hard-coded
-  - Terraform sets the Remote Backend as the very first step, even before it processes variables
+- `backend` blocks can NOT use Terraform variables or references, these values must be hard-coded
+  - This is because Terraform sets the Remote Backend as the very first step, even before it processes variables
   - Do NOT put sensitive values directly in this block.  Instead, you have a couple of options to provide these values in other ways:
     - 'Partial Configuration'.  This is where the `backend` block is missing key/value pairs and instead you provide them via switches to terraform.exe. Partial Configuration has 2 options:
     - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
