@@ -16,13 +16,13 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - This top-level directory is commonly referred to as the "Root" Module.
 
 ### Typical Root Module File Structure
-- File: `main.tf`
+- `main.tf`
   - Contains all of your `resource` blocks, `module` blocks, and `data` (data source) blocks
-- File: `outputs.tf`
+- `outputs.tf`
   - Contains all of your `output` blocks
-- File: `variables.tf`
+- `variables.tf`
   - Contains all of your `variable` blocks
-- File: `versions.tf`
+- `versions.tf`
   - Contains your top-level `terraform` block and all of your `provider` configuration blocks
   - This one is fairly new and not always found.  If it does not exist, then the information is typically found at the top of `main.tf` instead.
   - This one can also sometimes be found using the name `terraform.tf`
