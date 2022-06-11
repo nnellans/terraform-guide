@@ -106,12 +106,12 @@ variable "Name" {
 
 ### How to set values of Variables:
 - You can set a `default` value inside the Variable definition.  Careful, as this is clear text.
-- You can pass a value with the `-var` switch: `terraform plan -var "name=value"`
 - Set an environment variable with the value you want to use, and the name of `TF_VAR_<varName>`
   - Linux: `export TF_VAR_varName=value`
 - Using a file with a `.tfvars` extension that lists Variable names and their values
   - Option 1: Terraform will automatically load your file if it is placed in your Root Module directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
   - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform plan -var-file=somefile.tfvars`
+- You can pass a value with the `-var` switch: `terraform plan -var "name=value"`
 - If not set by any other method, then Terraform will interactively prompt you for a value when you run `terraform apply`
 - Values are loaded in the following order, with the later options taking precedence over earlier ones:
   - Environment Variables
