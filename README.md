@@ -65,56 +65,33 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   }
   ```
 
-  The keys & values mentioned above are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
+- The keys & values mentioned above are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
   - Read the documentation for your chosen Remote Backend type for more information.
 - `backend` blocks can NOT use Terraform variables or references, these values must be hard-coded
   - This is because Terraform sets the Remote Backend as the very first step, even before it processes variables
-  - Do NOT put sensitive values directly in this block.  Instead, you have a couple of options to provide these values in other ways:
-    - 'Partial Configuration'.  This is where the `backend` block is missing key/value pairs and instead you provide them via switches to terraform.exe. Partial Configuration has 2 options:
+  - Do NOT put sensitive values directly in the `backend` block.  You can leave these key/value pairs out of the block and provide them in other ways:
     - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
     - Option 2 is to use a separate file:  `terraform.exe -backend-config=backend.hcl`
-      - Where `backend.hcl` is a file which contains only the key/value pairs that are needed by the backend
-      - Do NOT check this file into version control if it contains sensitive values
-    - Lastly, you could set special environment variables that the Remote Backend will automatically read from.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice.
+      - Where `backend.hcl` is a file which contains only the key/value pairs that are needed by the backend.
+      - Do NOT check this file into version control if it contains sensitive values.
+    - Option 3 is setting special environment variables that the Remote Backend will automatically read from.  The environment variables must be set on the computer where terraform.exe will be run.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice.
+      - This is the preferred option, as credentials are kept out of your code.
 
 ### Terraform Workspaces
 - You may want to consider these as 'local' Workspaces, as they are different from Terraform Cloud Workspaces
-- If you create Workspaces, they each get their own state file.  However, all Workspaces still share the same Backend
-- They are placed in a new subfolder called `env:` and each workspace gets its own subfolder under that:
+- If you create Workspaces, they each get their own State File.  However, all Workspaces will still share the same Backend
+- State Files for Workspaces are placed in a new subfolder called `env:` and each Workspace gets its own subfolder under that:
   - `<backend>\env:\workspace1\terraform.tfstate`
   - `<backend>\env:\workspace2\terraform.tfstate`
-- Switching workspaces is equivalent to changing the path where your state file is stored
-- These are confusing. If possible, stay away from these
-
-# Syntax
-
-## Heredoc / multiline strings
-
-```terraform
-user_data = <<-EOF
-            indented multi-line
-            strings will go here
-            EOF
-    
-user_data = <<EOF
-non-indented multi-line
-strings will go here
-EOF
-```
-
-- `EOF` can be replaced with any word you choose
-- If you use `<<` then the string will include any whitespace, if you use `<<-` then the string can be indented however you like to maintain readability.  Terraform will remove any whitespace in the front automatically
-
-## Comments
-- `#` begins a single-line comment, this is the default comment style
-- `//` also begins a single-line comment
-- `/*` and `*/` are start & end delimiters for multi-line comments
+- Switching Workspaces is equivalent to changing the path where your State File is stored
+- In general, these are confusing.  It can be easy to mix up Workspaces and forget which one you are currently working with.
+- If possible, stay away from using these!
 
 # Input Variables
 
-## Defining a variable
+### Defining a variable
 - Typically, this is done in a separate `variables.tf` file
 
   ```terraform
@@ -574,7 +551,38 @@ EOF
 - `ignore_changes`
   - This is a list of resource attributes that you want Terraform to ignore.  If the value of that attribute differs in real life vs. the Terraform code, then Terraform will just ignore it and not try to make any changes.
 
-# Terraform Commands
+# Syntax
+
+### Heredoc / multiline strings
+
+```terraform
+user_data = <<-EOF
+            indented multi-line
+            strings will go here
+            EOF
+    
+user_data = <<EOF
+non-indented multi-line
+strings will go here
+EOF
+```
+
+- `EOF` can be replaced with any word you choose
+- If you use `<<` then the string will include any whitespace, if you use `<<-` then the string can be indented however you like to maintain readability.  Terraform will remove any whitespace in the front automatically
+
+### Comments
+
+```terraform
+# begins a single-line comment, this is the default comment style
+// also begins a single-line comment
+
+/* 
+this is a 
+multi-line comment
+*/
+```
+
+# terraform.exe Commands
 
 ## terraform apply
 - work in progress
@@ -618,15 +626,15 @@ EOF
 
 # .gitignore File
 
-## .terraform
+### .terraform
 - Terraform’s scratch directory, is created inside each config folder where you run `terraform init` and includes the downloaded providers.
 
-## *.tfstate
+### *.tfstate
 - Local state files, never check these into version control as they contain secrets in clear text
 
-## *.tfstate.backup
+### *.tfstate.backup
 - Backups of local state files
 
-## backend.hcl
+### backend.hcl
 - The standard filename when you use partial configuration for Remote Backend.
 - You only need to ignore this if you're storing **sensitive** keys/values in this file.
