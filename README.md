@@ -32,27 +32,27 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 # Terraform State
 
 ## State Files
-- State files use a custom JSON format
-- You should never edit this file manually
-  - Instead, you can use `terraform import` and `terraform state` commands to modify the state
-- Never store your state files in Version Control Systems:
-  - State files are stored in plain text, including any passwords and secrets!
-  - Make sure your state files are stored in a secure location and accessible only by principals who require access
+- State Files use a custom JSON format
+- You should NEVER manually edit State Files
+  - Instead, use commands like `terraform import` and `terraform state` to modify the state
+- You should NEVER store your State Files in Version Control Systems like Git:
+  - State Files often include passwords and sensitive information, and State Files are stored in plain text!  Therefore, it would be a bad idea to checkin a plain text file that includes passwords.
+- Make sure your State Files are stored in a secure location and accessible only by users or accounts who require access
 
 ## Local Backend
 - This is simply a file placed into the current directory, named `terraform.tfstate`
 - Problems:
   - The state file is local to your computer, and can not be shared by other teammates
   - You are restricted to using only 1 local state file
-- You can start with a Local Backend, and later you can add a Remote Backend to your code. Terraform will recognize the local state file and prompt you to copy it to the new Remote Backend
+- You can start with a Local Backend, and later you can add a Remote Backend to your code. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
 
 ## Remote Backend
-- This stores your state files into remote, shared storage (like Azure Storage, AWS S3, etc.)
+- A Remote Backend stores your State Files in remote shared storage (like Azure Storage Accounts, AWS S3 Buckets, etc.)
 - Most Remote Backends support:
   - File locking, so only 1 person can run a `terraform apply` command at a time
   - Encryption at rest
   - Encryption in transit
-- Configuring a Remote Backend is done in the root terraform block:
+- Configuring a Remote Backend is done in the root `terraform` block:
 
   ```terraform
   terraform {
