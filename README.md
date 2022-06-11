@@ -53,15 +53,15 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - File locking, so only 1 person can run a `terraform apply` command at a time
 - Configuring a Remote Backend is done in a `backend` block inside the root `terraform` block:
 
-  ```terraform
-  terraform {
-    backend "azurerm" {
-      key1 = value1
-      key2 = value2
-      key3 = value3
-    }
+```terraform
+terraform {
+  backend "azurerm" {
+    key1 = value1
+    key2 = value2
+    key3 = value3
   }
-  ```
+}
+```
 
 - The keys & values mentioned above are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
   - How to find the storage (name, resource group, etc.)
@@ -92,13 +92,13 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 ### Defining a variable
 - Remember, this is typically done in a `variables.tf` file
 
-  ```terraform
-  variable "Name" {
-    description = "put a good description here"
-    type        = string | number | bool | list | tuple | set | map | object | any
-    default     = set a default value here
-  }
-  ```
+```terraform
+variable "Name" {
+  description = "put a good description here"
+  type        = string | number | bool | list | tuple | set | map | object | any
+  default     = set a default value here
+}
+```
 
 - All three parameters are optional
   - If `type` is omitted, then the default is `any`
@@ -135,9 +135,9 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
     - When using `list` or `list(any)` the List values must still all be the same Type (string, number, etc.)
 - Setting the value of a List variable:
 
-  ```terraform
-  listName = [ "first", "second", "third" ]
-  ```
+```terraform
+listName = [ "first", "second", "third" ]
+```
 
 - Using a specific value from the List:  `var.listName[3]`
 - Lists are zero-based, so the the first entry is always `var.listName[0]`
@@ -162,18 +162,18 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - Setting the value of a Map variable, two options:
   - Put each pair on a new line.
 
-    ```terraform
-    mapName = {
-      key1 = value1
-      key2 = value2
-    }
-    ```
+```terraform
+mapName = {
+  key1 = value1
+  key2 = value2
+}
+```
 
   - For a single line, you must use commas to separate key/value pairs.	
 
-    ```terraform
-    mapName = { key1 = value1, key2 = value2 }
-    ```
+```terraform
+mapName = { key1 = value1, key2 = value2 }
+```
 
 - Keys are always strings.  Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
 - You can use either equal signs `key1 = value1` or colons `key1 : value1`.  However, `terraform fmt` doesn't work on the colon style.
@@ -197,13 +197,13 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - This approach makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
 - Defining Local Values:
 
-  ```terraform
-  locals {
-    first  = "some text"
-    second = "some text with a ${var.otherVariable} thrown in"
-    third  = [ "list", "example" ]
-  }
-  ```
+```terraform
+locals {
+  first  = "some text"
+  second = "some text with a ${var.otherVariable} thrown in"
+  third  = [ "list", "example" ]
+}
+```
 
 - Using Local Values:
   - `local.first`
@@ -216,13 +216,13 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 ### Defining Output Variables
 - Remember, this is typically done in a `outputs.tf` file
 
-  ```terraform
-  output "Name" {
-    value       = any terraform expression that you wish to output
-    description = "put a good description here"
-    sensitive   = true
-  }
-  ```
+```terraform
+output "Name" {
+  value       = any terraform expression that you wish to output
+  description = "put a good description here"
+  sensitive   = true
+}
+```
 
   - `value` is the only required parameter.
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
@@ -338,11 +338,11 @@ data "template_file" "name" {
 - It defines how many copies of that resource to create
 - Example:
 
-  ```terraform
-  resource "someResource" "someName" {
-    count = 5
-  }
-  ```
+```terraform
+resource "someResource" "someName" {
+  count = 5
+}
+```
 
 - `count` must reference hardcoded values, variables, data sources, and lists
   - It can NOT reference a value that needs to be computed
@@ -355,13 +355,13 @@ data "template_file" "name" {
   - You can use this on resource parameters that are required to be unique:  `name = "resource-group-${count.index}"`
   - You can get creative with this by building a separate List variable that contains the values you would like to use inside of the resource that is using `count`
 
-  ```terraform
-  var.listOfNames = ["peter", "paul", "mary"]
-  resource "someResource" "someName" {
-    count = length(var.listOfNames)
-    name  = var.listOfNames[count.index]
-  }
-  ```
+```terraform
+var.listOfNames = ["peter", "paul", "mary"]
+resource "someResource" "someName" {
+  count = length(var.listOfNames)
+  name  = var.listOfNames[count.index]
+}
+```
 
 - **When you use count on a resource, the resource now becomes an List**
   - To reference a single instance of the resource created by count:  `azurerm_storage.someName[2].id`
@@ -371,17 +371,17 @@ data "template_file" "name" {
 ### Drawback 1:  You can not use the count parameter with inline blocks.
 - For example, take this resource:
 
-  ```terraform
-  resource "someResource" "someName" {
-    key1 = value1
-    key2 = value2
+```terraform
+resource "someResource" "someName" {
+  key1 = value1
+  key2 = value2
 
-    inline-block {
-      keyA = valueA
-      keyB = valueB
-    }
+  inline-block {
+    keyA = valueA
+    keyB = valueB
   }
-  ```
+}
+```
 
   - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` parameter inside the inline-block.  However, that is NOT supported.
 
@@ -399,9 +399,11 @@ data "template_file" "name" {
 ## for_each Parameter
 - Inside of a resource you can use a parameter called `for_each`
 
-      resource "someResource" "someName" {
-        for_each = var.Set or var.Map
-      }
+```terraform
+resource "someResource" "someName" {
+  for_each = var.Set or var.Map
+}
+```
 
 - So, if your var.Set/var.Map has 5 entries, then you'll get 5 different copies of that Resource
 - List variables are NOT supported in Resource Block `for_each`.  You must convert a List to a Set variable:  `for_each = toset(var.List)`
@@ -422,18 +424,20 @@ data "template_file" "name" {
 
 ### Benefit 2:  You can now use for_each inside of an inline block in a resource, by using a dynamic block
 
-    resource "someResource" "someName" {
-      key = value
+```terraform
+resource "someResource" "someName" {
+  key = value
     
-      dynamic "<inlineBlockToDuplicate>" {
-        for_each = var.List or var.Map
+  dynamic "<inlineBlockToDuplicate>" {
+    for_each = var.List or var.Map
 
-        content {
-          key1 = <inlineBlockToDuplicate>.key
-          key2 = <inlineBlockToDuplicate>.value
-        }
-      }
+    content {
+      key1 = <inlineBlockToDuplicate>.key
+      key2 = <inlineBlockToDuplicate>.value
     }
+  }
+}
+```
 
 - So, if your var.List/var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
 - List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT.
@@ -495,34 +499,43 @@ data "template_file" "name" {
 - **Work In Progress**
 - This let’s you loop over a List variable or a Map variable
 
-      <<EOF
-      %{ for <item> in <collection> }
-      do something to <item>
-      %{ endfor }
-      EOF
+```terraform
+<<EOF
+%{ for <item> in <collection> }
+do something to <item>
+%{ endfor }
+EOF
+```
 
 - Strip Markers ( ~ ) allow you strip out unwanted spaces and newlines
 
-      %{~ for blahblah }
-      %{~ endfor }
-      %{ for blahblahblah ~}
-      %{ endfor ~}
+```terraform
+%{~ for blahblah }
+%{~ endfor }
+
+%{ for blahblahblah ~}
+%{ endfor ~}
+```
 
 ## Conditionals
 - **Work In Progress**
 - This let’s you run an if statement within a string
 
-      %{ if someCondition }
-      value if true
-      %{ endif }
+```terraform
+%{ if someCondition }
+value if true
+%{ endif }
+```
 
 - You can also do an if/else statement
 
-      %{ if some condition }
-      value if true
-      %{ else }
-      value if false
-      %{ endif }
+```terraform
+%{ if some condition }
+value if true
+%{ else }
+value if false
+%{ endif }
+```
 
 # Modules
 
@@ -534,12 +547,14 @@ data "template_file" "name" {
     - `outputs.tf` = where you specify what will be returned when the module is called
 - Using a Child Module / Calling a Child Module:
 
-      module "someName"  {
-        source = “path/to/the/module/folder”
+```terraform
+module "someName"  {
+  source = “path/to/the/module/folder”
 
-        key1 = value1
-        key2 = value2
-      }
+  key1 = value1
+  key2 = value2
+}
+```
 
   - The keys/values are your way of passing input parameters to the Child Module.
   - The Child Module defines what is accepted for input parameters via its own `variables.tf` file in its own folder
@@ -557,15 +572,17 @@ data "template_file" "name" {
 
 # Lifecycle Settings
 
-    resource "azurerm_some_resource" "someName" {
-      key = value
+```terraform
+resource "azurerm_some_resource" "someName" {
+  key = value
 
-      lifecycle {
-        create_before_destroy = true
-        prevent_destroy       = true
-        ignore_changes        = [ attribute1, attribute2 ]
-      }
-    }
+  lifecycle {
+    create_before_destroy = true
+    prevent_destroy       = true
+    ignore_changes        = [ attribute1, attribute2 ]
+  }
+}
+```
 
 - Every terraform resource supports a Lifecycle block
 - It can configure how that resource is created, updated, or deleted.
@@ -582,9 +599,9 @@ data "template_file" "name" {
 
 ### String Interpolation
   
-  ```terraform
-  "some string ${var.name} some more string"
-  ```
+```terraform
+"some string ${var.name} some more string"
+```
 
 ### Heredoc / multiline strings
 
@@ -607,6 +624,7 @@ EOF
 
 ```terraform
 # begins a single-line comment, this is the default comment style
+
 // also begins a single-line comment
 
 /* 
