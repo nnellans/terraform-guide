@@ -31,7 +31,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 # Terraform State
 
-## State Files
+### State Files
 - State Files use a custom JSON format
 - You should NEVER manually edit State Files
   - Instead, use commands like `terraform import` and `terraform state` to modify the state
@@ -39,14 +39,15 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - State Files often include passwords and sensitive information, and State Files are stored in plain text!  Therefore, it would be a bad idea to checkin a plain text file that includes passwords.
 - Make sure your State Files are stored in a secure location and accessible only by users or accounts who require access
 
-## Local Backend
-- This is simply a file placed into the current directory, named `terraform.tfstate`
+### Local Backend
+- This is the default, unless you manually specify a different Backend
+- This is simply a file, named `terraform.tfstate`, that is created in the current directory
 - Problems:
-  - The state file is local to your computer, and can not be shared by other teammates
-  - You are restricted to using only 1 local state file
+  - The State File is local to your computer, and can not be shared by other teammates
+  - You are restricted to using only 1 local State File
 - You can start with a Local Backend, and later you can add a Remote Backend to your code. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
 
-## Remote Backend
+### Remote Backend
 - A Remote Backend stores your State Files in remote shared storage (like Azure Storage Accounts, AWS S3 Buckets, etc.)
 - Most Remote Backends support:
   - File locking, so only 1 person can run a `terraform apply` command at a time
@@ -66,16 +67,18 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   The keys & values mentioned above are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
-- Remote Backends can NOT use terraform variables or references
+  - Read the documentation for your chosen Remote Backend type for more information.
+- Remote Backends can NOT use Terraform variables or references, these values must be hard-coded
   - Terraform sets the Remote Backend as the very first step, even before it processes variables
-  - You do not want to put sensitive values directly in this block, so instead you could use something like partial configuration.  This is where the backend block is missing the sensitive key/value pairs and instead you provide them via switches to terraform.exe:
-    - `terraform.exe -backend-config="key=value" -backend-config="key=value"`
-    - `terraform.exe -backend-config=backend.hcl`
-      - Where backend.hcl is a file which contains only the key/value pairs that are needed
+  - Do NOT put sensitive values directly in this block.  Instead, you have a couple of options to provide these values in other ways:
+    - 'Partial Configuration'.  This is where the `backend` block is missing key/value pairs and instead you provide them via switches to terraform.exe. Partial Configuration has 2 options:
+    - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
+    - Option 2 is to use a separate file:  `terraform.exe -backend-config=backend.hcl`
+      - Where `backend.hcl` is a file which contains only the key/value pairs that are needed by the backend
       - Do NOT check this file into version control if it contains sensitive values
-    - Or, you could set special environment variables that the Remote Backend will automatically read from.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice.
+    - Lastly, you could set special environment variables that the Remote Backend will automatically read from.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice.
 
-## Terraform Workspaces
+### Terraform Workspaces
 - You may want to consider these as 'local' Workspaces, as they are different from Terraform Cloud Workspaces
 - If you create Workspaces, they each get their own state file.  However, all Workspaces still share the same Backend
 - They are placed in a new subfolder called `env:` and each workspace gets its own subfolder under that:
