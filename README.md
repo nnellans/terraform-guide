@@ -183,22 +183,25 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 - Instead of embedding complex expressions directly into resource properties, use Locals to contain the expressions
 - This approach makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
-- Defining Local Values:
-  ```terraform
-  locals {
-    first  = "some text"
-    second = "some text with a ${var.otherVariable} thrown in"
-    third  = [ "list", "example" ]
-  }
-  ```
-- Using Local Values:
-  - `local.first`
-  - `local.third[0]`
 
-# Output Variables
+### Defining a Local
+```terraform
+locals {
+  first  = "some text"
+  second = "some text with a ${var.otherVariable} thrown in"
+  third  = [ "list", "example" ]
+}
+```
+- You can have a single `locals` block where you define multiple Locals, or you can split them up into multiple `locals` blocks
+
+### Using a Local
+- `local.first`
+- `local.third[0]`
+
+# Output Variables (aka Outputs)
 - These are used when you want to output a value or values from one Terraform Root Module, and consume the values in a separate Terraform Root Module.
 
-### Defining Output Variables
+### Defining an Output
 - Remember, this is typically done in a `outputs.tf` file
   ```terraform
   output "Name" {
@@ -210,7 +213,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - `value` is the only required parameter.
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
 
-### Using an Output Variable
+### Using an Output
 - You can use a Remote State Data Source (see below) to read Output Variables.
 
 # Data Sources
@@ -218,7 +221,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform.
 - Each provider has their own list of supported Data Sources.
 
-### Defining a data source
+### Defining a Data Source
 ```terraform
 data "azurerm_some_datasource" "name" {
   one or more          = arguments
@@ -227,7 +230,7 @@ data "azurerm_some_datasource" "name" {
 ```
 - The argument(s) that you specify can be thought of like search filters to limit what data is returned.
 
-### Using a data source
+### Using a Data Source
 - `data.azurerm_some_datasource.<name>.<attribute>`
 - Where `attribute` is specific to the resource that is being fetched by the data source
 
@@ -235,7 +238,7 @@ data "azurerm_some_datasource" "name" {
 - Use these when you want to pull info from a foreign Terraform State File.
 - That foreign Terraform State must have some `outputs` already configured, because that's the information you're pulling from.
 
-### Defining a Remote State data source
+### Defining a Remote State Data Source
 ```terraform
 data "terraform_remote_state" "name" {
   backend = "azurerm"
@@ -248,7 +251,7 @@ data "terraform_remote_state" "name" {
 - In the `config` block you specify the storage and state file to connect to, as well as how to authenticate to that storage.  You can use the same parameters you used for the Remote Backend settings.
 - Partial config is NOT supported for Remote State Data Sources.
 
-### Using a Remote State data source:
+### Using a Remote State Data Source:
 - `data.teraform_remote_state.<dataSourceName>.outputs.<outputName>`
 
 ## External Data Source
@@ -288,7 +291,7 @@ data "terraform_remote_state" "name" {
 
 ## Template File Data Source
 
-### Defining a Template File Data Source:
+### Defining a Template File Data Source
 ```terraform
 data "template_file" "name" {
   template = file("somefile.txt")
@@ -302,6 +305,8 @@ data "template_file" "name" {
 - The file you provide is processed as a string.  Any time a matching variable key is found in the string, it is replaced with the variable value specified.
 - The string must be formatted like this: `in this string ${key1} will be replaced and ${key2} will also be replaced`
 - `template` could also be just a simple string value or string variable that you want to modify.
+
+### Using a Template File Data Source
 - Using the rendered output from a Template File Data Source:
   - `data.template_file.<dataSourceName>.rendered`
 
@@ -403,7 +408,7 @@ resource "someResource" "someName" {
   }
 }
 ```
-- So, if your var.List/var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
+- So, if your var.List or var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
 - List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT.
   - This is confusing:
   - Sets are allowed on resources but not on inline blocks.
@@ -428,7 +433,7 @@ resource "someResource" "someName" {
 #### Input a List, return a Tuple
 - `newList = [for <item> in var.List : <output> <condition>]`
   - `<item>` is the local variable name to assign to each item in the list
-  - `<output>` is what to put into the resultant List, it can be an expression that modifies the `<item>` in some way
+  - `<output>` is what to put into the resultant List, it can be an expression that modifies `<item>` in some way
   - `<condition>` is optional and you could use it to further refine what values go into the resultant List
 - `newList = [for <index>, <item> in var.List : <output> <condition>]`
   - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
@@ -448,7 +453,7 @@ resource "someResource" "someName" {
 #### Input a List, return an Object
 - `newMap = {for <item> in var.List : <outputKey> => <outputValue> <condition>}`
   - `<item>` is the local variable name to assign to each item in the list
-  - `<outputKey>` and `<outputValue>` is what to put into the resultant Map, they can be expressions that modify the `<item>` in some way
+  - `<outputKey>` and `<outputValue>` is what to put into the resultant Map, they can be expressions that modify `<item>` in some way
   - `<condition>` is optional and you could use it to further refine what key/value pairs go into the resultant Map
 - `newMap = {for <index>, <item> in var.List : <outputKey> => <outputValue> <condition>}`
   - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
