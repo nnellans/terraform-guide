@@ -49,7 +49,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 ### Remote Backend
 - A Remote Backend stores your State Files in remote shared storage (like Azure Storage Accounts, AWS S3 Buckets, etc.)
-- - Most Remote Backends support:
+- Most Remote Backends support:
   - Encryption at rest
   - Encryption in transit
   - File locking, so only 1 person can run a `terraform apply` command at a time
