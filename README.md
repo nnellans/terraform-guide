@@ -88,7 +88,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - In general, these are confusing.  It can be easy to mix up Workspaces and forget which one you are currently working with.
 - If possible, stay away from using these!
 
-# Input Variables
+# Input Variables (aka Variables)
 
 ### Defining a variable
 - Remember, this is typically done in a `variables.tf` file
@@ -123,47 +123,53 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 ### List/Array Variables
 - Examples:
   - `type = list(string)`
+    - This defines a List of all Strings.
   - `type = list(number)`
+    - This defines a List of all Numbers.
   - `type = list`
-    - This is shorthand for `list(any)`.  This shorthand is not recommended any more.
-    - Even when using this, the List values must still all be the same Type (string, number, etc.)
+    - This shorthand is not recommended any more.  Instead, use `list(any)`
+    - When using `list` or `list(any)` the List values must still all be the same Type (string, number, etc.)
 - Setting the value of a List variable:
 
   ```terraform
   listName = [ "first", "second", "third" ]
   ```
 
-- Using a specific value from the list:  `var.listName[3]`
-- Terraform lists are zero-based, so the the first entry is always `var.listName[0]`
+- Using a specific value from the List:  `var.listName[3]`
+- Lists are zero-based, so the the first entry is always `var.listName[0]`
 - Some example List Functions:
   - Find the number of items inside a list:  `length(var.listName)`
 
 ### Tuple Variables
-- This is the 'structural' version of a list variable.
-- It allows you to define a schema within square brackets, which can use different variable types inside the Tuple, instead of being restricted to the same variable type when using a List.
+- This is the 'structural' version of a List variable.
+- It allows you to define a schema (within square brackets), which can use different variable Types inside the Tuple, instead of being restricted to the same variable Type when using a List.
   - `type = tuple( [schema] )`
   - `type = tuple( [ string, number, bool ] )`
 
 ### Map Variables
 - Examples:
   - `type = map(string)`
-    - This defines a Map where all the values are strings.
+    - This defines a Map where all the values are Strings.
   - `type = map(number)`
-    - This defines a Map where all the values are numbers.
+    - This defines a Map where all the values are Numbers.
   - `type = map`
-    - This is shorthand for `map(any)`.  This shorthand is not recommended any more.
-    - Even when using this, the Map values must all be the same Type (string, number, etc.)
+    - This shorthand is not recommended any more.  Instead, use `map(any)`
+    - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
 - Setting the value of a Map variable, two options:
   - Put each pair on a new line.
 
-        mapName = {
-          key1 = value1
-          key2 = value2
-        }
+    ```terraform
+    mapName = {
+      key1 = value1
+      key2 = value2
+    }
+    ```
 
   - For a single line, you must use commas to separate key/value pairs.	
 
-        mapName = { key1 = value1, key2 = value2 }
+    ```terraform
+    mapName = { key1 = value1, key2 = value2 }
+    ```
 
 - Keys are always strings.  Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
 - You can use either equal signs `key1 = value1` or colons `key1 : value1`.  However, `terraform fmt` doesn't work on the colon style.
@@ -181,37 +187,43 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - `type = object( {schema} )`
   - `type = object( { name = string, age = number } )`
 
-# Output Variables
+# Local Values (aka Locals)
 
-- These are used when you want to output values in one terraform configuration, and consume them from a separate terraform configuration.
-- Defining an output variable:
-
-      output "Name" {
-        value       = any terraform expression that you wish to output
-        description = "put a good description here"
-        sensitive   = true
-      }
-
-  - Typically, this is done in a separate `outputs.tf` file
-  - `value` is the only required parameter.
-  - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
-- Using an Output Variable
-  - You can use a Remote State Data Source (see below) to read Output Variables.
-
-# Local Values
-
-- Normal Input Variables do not allow expressions or interpolations in their values, but that is totally acceptable with Local Values.
+- Instead of embedding complex expressions directly into resource properties, use Locals to contain the expressions
+- This approach makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
 - Defining Local Values:
 
-      locals {
-        first  = "some text"
-        second = "some text with a ${var.otherVariable} thrown in"
-        third  = [ "list", "example" ]
-      }
+  ```terraform
+  locals {
+    first  = "some text"
+    second = "some text with a ${var.otherVariable} thrown in"
+    third  = [ "list", "example" ]
+  }
+  ```
 
 - Using Local Values:
   - `local.first`
   - `local.third[0]`
+
+# Output Variables
+
+- These are used when you want to output values in one terraform configuration, and consume them from a separate terraform configuration.
+
+### Defining Output Variables
+- Remember, this is typically done in a `outputs.tf` file
+
+  ```terraform
+  output "Name" {
+    value       = any terraform expression that you wish to output
+    description = "put a good description here"
+    sensitive   = true
+  }
+  ```
+
+  - `value` is the only required parameter.
+  - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
+- Using an Output Variable
+  - You can use a Remote State Data Source (see below) to read Output Variables.
 
 # Data Sources
 
