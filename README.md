@@ -207,7 +207,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 # Output Variables
 
-- These are used when you want to output values in one terraform configuration, and consume them from a separate terraform configuration.
+- These are used when you want to output a value or values from one Terraform Root Module, and consume the values in a separate Terraform Root Module.
 
 ### Defining Output Variables
 - Remember, this is typically done in a `outputs.tf` file
@@ -222,55 +222,67 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
   - `value` is the only required parameter.
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
-- Using an Output Variable
-  - You can use a Remote State Data Source (see below) to read Output Variables.
+
+### Using an Output Variable
+- You can use a Remote State Data Source (see below) to read Output Variables.
 
 # Data Sources
 
 - Data Sources are Read-Only!!!
 - Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform.
 - Each provider has their own list of supported Data Sources.
-- Defining a data source:
 
-      data "azurerm_some_datasource" "name" {
-        one or more          = arguments
-        that are specific to = this data source
-      }
+### Defining a data source
+
+```terraform
+data "azurerm_some_datasource" "name" {
+  one or more          = arguments
+  that are specific to = this data source
+}
+```
 
   - The argument(s) that you specify can be thought of like search filters to limit what data is returned.
-- Using a data source: `data.azurerm_some_datasource.<name>.<attribute>`
-  - Where `attribute` is specific to the resource that is being fetched by the data source
+
+### Using a data source
+- `data.azurerm_some_datasource.<name>.<attribute>`
+- Where `attribute` is specific to the resource that is being fetched by the data source
 
 ## Remote State Data Source
-- When you want to pull info from a foreign terraform state file.
-- That foreign terraform state must have some `outputs` already configured, because that is the information you are pulling from.
-- Defining a Remote State data source:
+- Use these when you want to pull info from a foreign Terraform State File.
+- That foreign Terraform State must have some `outputs` already configured, because that's the information you're pulling from.
 
-      data "terraform_remote_state" "name" {
-        backend = "azurerm"
-        config = {
-          key1 = value1
-          key2 = value2
-        }
-      }
+### Defining a Remote State data source
 
-  - In the `config` block you specify the storage and state file to connect to, as well as how to authenticate to that storage.  You can use the same parameters you used for the remote backend settings.
-  - Partial config is not supported for Remote State Data Sources.
-- Using a Remote State data source: `data.teraform_remote_state.<dataSourceName>.outputs.<outputName>`
+```terraform
+data "terraform_remote_state" "name" {
+  backend = "azurerm"
+  config = {
+    key1 = value1
+    key2 = value2
+  }
+}
+```
+
+  - In the `config` block you specify the storage and state file to connect to, as well as how to authenticate to that storage.  You can use the same parameters you used for the Remote Backend settings.
+  - Partial config is NOT supported for Remote State Data Sources.
+
+### Using a Remote State data source:
+- `data.teraform_remote_state.<dataSourceName>.outputs.<outputName>`
 
 ## External Data Source
 - Provides an interface between Terraform and an external program
 - Example:
 
-      data "external" "example" {
-        program = ["python", "${path.module}/example-data-source.py"]
+```terraform
+data "external" "example" {
+  program = ["python", "${path.module}/example-data-source.py"]
 
-        query = {
-        # arbitrary map from strings to strings, passed
-        # to the external program as the data query.
-          id = "abc123"
-        }
-      }
+  query = {
+    # arbitrary map from strings to strings, passed to the external program as the data query.
+    id = "abc123"
+  }
+}
+```
 
 - Requirements:
   - The `program` must read all of the data passed to it on `stdin`
@@ -295,20 +307,22 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - `data.external.<name>.result.<someAttribute>`
 
 ## Template File Data Source
-- Defining a Template File Data Source:
 
-      data "template_file" "name" {
-        template = file("somefile.txt")
+### Defining a Template File Data Source:
 
-        vars = {
-          key1 = value1
-          key2 = value2
-        }
-      }
+```terraform
+data "template_file" "name" {
+  template = file("somefile.txt")
+
+  vars = {
+    key1 = value1
+    key2 = value2
+  }
+}
+```
 
   - The file you provide is processed as a string.  Any time a matching variable key is found in the string, it is replaced with the variable value specified.
-- The string must be formatted like this:
-  `in this string ${key1} will be replaced and ${key2} will also be replaced`
+- The string must be formatted like this: `in this string ${key1} will be replaced and ${key2} will also be replaced`
 - `template` could also be just a simple string value or string variable that you want to modify.
 - Using the rendered output from a Template File Data Source:
   - `data.template_file.<dataSourceName>.rendered`
@@ -320,9 +334,11 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - It defines how many copies of that resource to create
 - Example:
 
-      resource "someResource" "someName" {
-        count = 5
-      }
+  ```terraform
+  resource "someResource" "someName" {
+    count = 5
+  }
+  ```
 
 - `count` must reference hardcoded values, variables, data sources, and lists
   - It can NOT reference a value that needs to be computed
@@ -335,29 +351,33 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - You can use this on resource parameters that are required to be unique:  `name = "resource-group-${count.index}"`
   - You can get creative with this by building a separate List variable that contains the values you would like to use inside of the resource that is using `count`
 
-        var.listOfNames = ["peter", "paul", "mary"]
-        resource "someResource" "someName" {
-          count = length(var.listOfNames)
-          name  = var.listOfNames[count.index]
-        }
+  ```terraform
+  var.listOfNames = ["peter", "paul", "mary"]
+  resource "someResource" "someName" {
+    count = length(var.listOfNames)
+    name  = var.listOfNames[count.index]
+  }
+  ```
 
 - **When you use count on a resource, the resource now becomes an List**
-  - To reference a single instance of the resource created by `count`:  `azurerm_storage.someName[2].id`
-  - To reference all instances of the resource created by `count`:  `azurerm_storage.someName[*].id`
+  - To reference a single instance of the resource created by count:  `azurerm_storage.someName[2].id`
+  - To reference all instances of the resource created by count:  `azurerm_storage.someName[*].id`
     - This is called a "splat expression"
 
 ### Drawback 1:  You can not use the count parameter with inline blocks.
 - For example, take this resource:
 
-      resource "someResource" "someName" {
-        key1 = value1
-        key2 = value2
+  ```terraform
+  resource "someResource" "someName" {
+    key1 = value1
+    key2 = value2
 
-        inline-block {
-          keyA = valueA
-          keyB = valueB
-        }
-      }
+    inline-block {
+      keyA = valueA
+      keyB = valueB
+    }
+  }
+  ```
 
   - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` parameter inside the inline-block.  However, that is NOT supported.
 
