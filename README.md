@@ -91,85 +91,84 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 # Input Variables
 
 ### Defining a variable
-- Typically, this is done in a separate `variables.tf` file
+- Remember, this is typically done in a `variables.tf` file
 
   ```terraform
   variable "Name" {
     description = "put a good description here"
-    type        = string,number,bool,list,map,set,object,tuple,any
+    type        = string | number | bool | list | tuple | set | map | object | any
     default     = set a default value here
   }
   ```
 
 - All three parameters are optional
-- If `type` is omitted, then it is assumed to be `any`
+  - If `type` is omitted, then the default is `any`
 - `type` can be a combination of different options:  `list(number)`
-- How to set the value of the variable:
-  - If not set by any other method, then terraform will interactively prompt you for a value when you run `terraform apply`
-  - You can set a `default` value inside the variable definition.  Careful, as this is clear text
-  - You can pass a value with the `-var` switch:
 
-    ```bash
-    terraform plan -var "name=value"
-    ```
+### How to set values of Variables:
+- You can set a `default` value inside the Variable definition.  Careful, as this is clear text.
+- You can pass a value with the `-var` switch:
 
-  - Setting environment variables with the name of `TF_VAR_<varName>`
-    - Linux:
-
-      ```bash
-      export TF_VAR_varName=value
-      ```
-
-  - Using a file with a `.tfvars` extension that lists variable names and their values
-    - Option 1: Terraform will automatically load your file if it is placed in your config directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
-    - Option 2: Pass your tfvars file with the `-var-file` switch:
-
-      ```bash
-      terraform plan -var-file=somefile.tfvars
-      ```
-
-## Using a variable
-- `var.name`
-- Using a variable inside of a string (interpolation):
-  
-  ```terraform
-  "some string ${var.name} some more string"
+  ```bash
+  terraform plan -var "name=value"
   ```
 
-## List/Array Variables
+- Set an environment variable with the value you want to use, and the name of `TF_VAR_<varName>`
+  - Linux:
+
+    ```bash
+    export TF_VAR_varName=value
+    ```
+
+- Using a file with a `.tfvars` extension that lists Variable names and their values
+  - Option 1: Terraform will automatically load your file if it is placed in your Root Module directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
+  - Option 2: Pass your tfvars file with the `-var-file` switch:
+
+    ```bash
+    terraform plan -var-file=somefile.tfvars
+    ```
+
+- If not set by any other method, then Terraform will interactively prompt you for a value when you run `terraform apply`
+
+### Using a variable
+- `var.name`
+
+# Variable Types
+
+### List/Array Variables
 - Examples:
   - `type = list(string)`
   - `type = list(number)`
   - `type = list`
-    - This is shorthand for `list(any)`.  But, the list values must still all be the same type (string, number, etc.)
-    - This shorthand is not recommended any more
-- Setting the value of a list variable:
+    - This is shorthand for `list(any)`.  This shorthand is not recommended any more.
+    - Even when using this, the List values must still all be the same Type (string, number, etc.)
+- Setting the value of a List variable:
 
   ```terraform
   listName = [ "first", "second", "third" ]
   ```
 
 - Using a specific value from the list:  `var.listName[3]`
-- Terraform lists are zero-based, so the the first entry is `var.listName[0]`
+- Terraform lists are zero-based, so the the first entry is always `var.listName[0]`
 - Some example List Functions:
   - Find the number of items inside a list:  `length(var.listName)`
 
-## Tuple Variables
+### Tuple Variables
 - This is the 'structural' version of a list variable.
-- It allows you to define a schema within square brackets, which can use different variable types inside the tuple, instead of being restricted to the same variable type when using a list.
+- It allows you to define a schema within square brackets, which can use different variable types inside the Tuple, instead of being restricted to the same variable type when using a List.
   - `type = tuple( [schema] )`
   - `type = tuple( [ string, number, bool ] )`
 
-## Map Variables
+### Map Variables
 - Examples:
   - `type = map(string)`
-    - This defines a map where all the values are strings.
+    - This defines a Map where all the values are strings.
   - `type = map(number)`
-    - This defines a map where all the values are numbers.
+    - This defines a Map where all the values are numbers.
   - `type = map`
-    - This is shorthand for `map(any)`.  But, the map values must all be the same type (string, number, etc.)
-    - This shorthand is not recommended any more.
-- Setting the map variable, two options:
+    - This is shorthand for `map(any)`.  This shorthand is not recommended any more.
+    - Even when using this, the Map values must all be the same Type (string, number, etc.)
+- Setting the value of a Map variable, two options:
   - Put each pair on a new line.
 
         mapName = {
@@ -182,18 +181,18 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
         mapName = { key1 = value1, key2 = value2 }
 
 - Keys are always strings.  Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
-- You can use either equal signs `key1 = value1` or colons `key1 : value1`.  However, `terraform fmt` ignores colons.
-- Using a specific value from the map, two options:
+- You can use either equal signs `key1 = value1` or colons `key1 : value1`.  However, `terraform fmt` doesn't work on the colon style.
+- Using a specific value from the Map, two options:
   - `var.mapName["1key"]`
     - You must use this if the key begins with a number
   - `var.mapName.key1`
     - You can also use this option (as long as your key does not start with a number)
-- Map Functions:
-  - Return just the values from a map:  `values(var.mapName)`
+- Some example Map Functions:
+  - Return just the values from a Map:  `values(var.mapName)`
 
-## Object Variables
-- This is the 'structural' version of a map variable.
-- It allows you to define a schema within curly brackets, which can use different variable types inside the object, instead of being restricted to the same variable type when using a map.
+### Object Variables
+- This is the 'structural' version of a Map variable.
+- It allows you to define a schema within curly brackets, which can use different variable Types inside the Object, instead of being restricted to the same variable Type when using a Map.
   - `type = object( {schema} )`
   - `type = object( { name = string, age = number } )`
 
@@ -550,7 +549,13 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - `ignore_changes`
   - This is a list of resource attributes that you want Terraform to ignore.  If the value of that attribute differs in real life vs. the Terraform code, then Terraform will just ignore it and not try to make any changes.
 
-# Syntax
+# Random Syntax Notes
+
+### String Interpolation
+  
+  ```terraform
+  "some string ${var.name} some more string"
+  ```
 
 ### Heredoc / multiline strings
 
