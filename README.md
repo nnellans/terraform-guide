@@ -159,20 +159,16 @@ listName = [ "first", "second", "third" ]
   - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
 - Setting the value of a Map variable, two options:
   - Put each pair on a new line:
-
-```terraform
-mapName = {
-  key1 = value1
-  key2 = value2
-}
-```
-
+    ```terraform
+    mapName = {
+      key1 = value1
+      key2 = value2
+    }
+    ```
   - For a single line, you must use commas to separate key/value pairs:
-
-```terraform
-mapName = { key1 = value1, key2 = value2 }
-```
-
+    ```terraform
+    mapName = { key1 = value1, key2 = value2 }
+    ```
 - Keys are always strings.  Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
 - You can use either equal signs `key1 = value1` or colons `key1 : value1`.  However, `terraform fmt` doesn't work on the colon style.
 - Using a specific value from the Map, two options:
