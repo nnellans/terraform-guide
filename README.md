@@ -1,3 +1,34 @@
+Warning: This is not a very beginner-friendly guide.  Think of this more like an advanced cheat sheet, of sorts.  I went through the HashiCorp documentation as well as various books and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.  Some of it is still a work in progress, and I will update this over time.
+
+If you are new to Terraform, then I would suggest going through the HashiCorp Docs or doing a couple HashiCorp Learn courses first.
+
+# Terraform Files and Folders
+
+### Configuration Files
+- Files that contain Terraform code are called "configuration files"
+- Configuration Files can in the typical, native form which uses a `.tf` file extension, or they can be in the alternate JSON form which uses a `.tf.json` file extension.
+- This guide will be focused strictly on the native form using the `.tf` file extension.
+
+### Root Module
+- When you run terraform commands such as `plan` or `apply` you run it against a directory.
+- This directory could contain just a single Configuration File.
+- This directory could also contain multiple Configuration Files.
+- Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Using multiple Configuration Files can make it easier for code readers and code maintainers.
+- Terraform will automatically evaluate ALL Configuration Files that it finds in the top level of a directory.
+- This top-level directory is commonly referred to as the "Root" Module.
+
+### Typical Root Module File Structure
+- File: `main.tf`
+  - Contains all of your `resource` blocks, `module` blocks, and `data` (data source) blocks
+- File: `outputs.tf`
+  - Contains all of your `output` blocks
+- File: `variables.tf`
+  - Contains all of your `variable` blocks
+- File: `versions.tf`
+  - Contains your top-level `terraform` block as well as `provider` configuration blocks
+  - This one is fairly new and not always found.  If it does not exist, then the information is typically found at the top of `main.tf` instead.
+  - This one can also sometimes be found using the name `terraform.tf`
+
 # Terraform State
 
 ## State Files
