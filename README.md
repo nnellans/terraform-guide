@@ -125,14 +125,13 @@ variable "Name" {
 # Variable Types
 
 ### List/Array Variables
-- Examples:
-  - `type = list(string)`
-    - This defines a List of all Strings.
-  - `type = list(number)`
-    - This defines a List of all Numbers.
-  - `type = list`
-    - This shorthand is not recommended any more.  Instead, use `list(any)`
-    - When using `list` or `list(any)` the List values must still all be the same Type (string, number, etc.)
+- `type = list(string)`
+  - This defines a List of all Strings.
+- `type = list(number)`
+  - This defines a List of all Numbers.
+- `type = list`
+  - This shorthand is not recommended any more.  Instead, use `list(any)`
+  - When using `list` or `list(any)` the List values must still all be the same Type (string, number, etc.)
 - Setting the value of a List variable:
 
 ```terraform
@@ -151,16 +150,15 @@ listName = [ "first", "second", "third" ]
   - `type = tuple( [ string, number, bool ] )`
 
 ### Map Variables
-- Examples:
-  - `type = map(string)`
-    - This defines a Map where all the values are Strings.
-  - `type = map(number)`
-    - This defines a Map where all the values are Numbers.
-  - `type = map`
-    - This shorthand is not recommended any more.  Instead, use `map(any)`
-    - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
+- `type = map(string)`
+  - This defines a Map where all the values are Strings.
+- `type = map(number)`
+  - This defines a Map where all the values are Numbers.
+- `type = map`
+  - This shorthand is not recommended any more.  Instead, use `map(any)`
+  - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
 - Setting the value of a Map variable, two options:
-  - Put each pair on a new line.
+  - Put each pair on a new line:
 
 ```terraform
 mapName = {
@@ -169,7 +167,7 @@ mapName = {
 }
 ```
 
-  - For a single line, you must use commas to separate key/value pairs.	
+  - For a single line, you must use commas to separate key/value pairs:
 
 ```terraform
 mapName = { key1 = value1, key2 = value2 }
@@ -187,7 +185,7 @@ mapName = { key1 = value1, key2 = value2 }
 
 ### Object Variables
 - This is the 'structural' version of a Map variable.
-- It allows you to define a schema within curly brackets, which can use different variable Types inside the Object, instead of being restricted to the same variable Type when using a Map.
+- It allows you to define a schema (within curly brackets), which can use different variable Types inside the Object, instead of being restricted to the same variable Type when using a Map.
   - `type = object( {schema} )`
   - `type = object( { name = string, age = number } )`
 
