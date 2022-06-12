@@ -609,7 +609,7 @@ resource "someResource" "someName" {
   }
 }
 ```
-- So, if your var.List or var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
+- So, if your Collection/Structural var has 5 entries, then you'll get 5 different copies of that Inline Block
 - `for_each` supports many types of variables, specifically Lists, Sets, Maps, Tuples, and Objects
 
 > This is confusing.  To summarize the `for_each` support:<br>for_each on Resources/Modules: Sets and Maps only<br>for_each on Dynamic Blocks: Lists, Sets, Tuples, Maps, and Objects are supported
