@@ -513,8 +513,8 @@ multi-line comment
 
 # Loops
 
-### count Parameter
-- Every terraform resource has a parameter you can use called `count` which defines how many copies of that resource to create
+### count Meta-Argument
+- Every terraform resource or module has a meta-argument that you can use called `count` which defines how many copies of that item to create
 - Example:
   ```terraform
   resource "azurerm_storage_account" "someSymbolicName" {
@@ -522,7 +522,7 @@ multi-line comment
   }
   ```
 - `count` must reference hard-coded values, variables, data sources, and lists.  It can NOT reference a value that needs to be computed
-- When you specify the `count` parameter on a resource, then you can use a new variable inside that resource:  `count.index`
+- When you specify the `count` meta-argument on a resource, then you can use a new variable inside that resource:  `count.index`
   - `count.index` represents the number of the loop that you’re currently on
   - For example, say you had a resource with `count = 3`
     - The first resource will set `count.index = 0`
@@ -542,7 +542,7 @@ multi-line comment
   - To reference a single instance of the resource created by count:  `azurerm_storage_account.someSymbolicName[2]`
   - To reference all instances of the resource created by count:  `azurerm_storage_account.someSymbolicName[*]` (this is called a "splat expression")
 
-### Drawback 1:  You can not use the `count` parameter with inline blocks
+### Issue 1:  The `count` meta-argument is not supported on inline blocks
 - For example, take this resource:
   ```terraform
   resource "someResource" "someName" {
@@ -555,28 +555,30 @@ multi-line comment
     }
   }
   ```
-  - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` parameter inside the inline-block.  However, that is NOT supported
+  - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` meta-argument inside the inline-block.  However, that is NOT supported
 
-### Drawback 2:  Be careful when you remove a resource instance from the middle of the list
+### Issue 2:  Deleting a resource from the middle of a List is tricky
 - For example, say you used `count = 3` to create some users:
   - `user[0] = arnold`
   - `user[1] = sylvester`
   - `user[2] = jean-claude`
+  - `user[3] = chuck`
 - Now, say you deleted the middle resource `sylvester`.  Every resource in the list after that will shift backwards in terms of index count, so you will be left with:
   - `user[0] = arnold`
   - `user[1] = jean-claude`
-  - This is a problem because terraform will need to delete the original `jean-claude[2]` and then create a new `jean-claude[1]`
-- **If you remove an item from the middle of the list, terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
+  - `user[2] = chuck`
+  - This is a problem because terraform will need to delete the original `jean-claude[2]` and then create a new `jean-claude[1]`.  It will also have to delete the original `chuck[3]` and then create a new `chuck[2]`
+- **If you remove an item from the middle of the List, terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
 
 ### for_each Parameter
-- Inside of a resource you can use a parameter called `for_each`
+- Every terraform resource or module has a meta-argument that you can use called `for_each`
   ```terraform
   resource "azurerm_storage_account" "someSymbolicName" {
     for_each = var.Set or var.Map
   }
   ```
 - So, if your var.Set or var.Map has 5 entries, then you'll get 5 different copies of that Resource
-- List variables are NOT supported in Resource Block `for_each`.  You must convert a List variable to a Set variable:  `for_each = toset(var.List)`
+- List variables are NOT supported in Resource Block `for_each`.  You can convert a List variable to a Set variable:  `for_each = toset(var.List)`
 - `for_each` must reference hardcoded values, variables, data sources, and lists.  It can NOT reference a value that needs to be computed
 - When you specify the `for_each` parameter on a resource, then you can use new variables inside that resource:  `each.key` and `each.value`
   - For a Set variable:
@@ -588,16 +590,16 @@ multi-line comment
 - When you use `for_each` on a resource, the resource now becomes a Map
   - To reference a single instance of the resource created by for_each:  `azurerm_storage.someName[key].id`
 
-### Benefit 1:  You can now delete an instance from the middle of the set/map without any trouble
+### Benefit 1:  Deleting from the middle is no problem
 - Since the resource is now considered a Map, deleting from the middle will no longer affect items further down the chain
 
-### Benefit 2:  You can now use for_each inside of an inline block in a resource, by using a dynamic block
+### Benefit 2:  for_each is supported on inline blocks, by using a dynamic block
 ```terraform
 resource "someResource" "someName" {
   key = value
     
   dynamic "<inlineBlockToDuplicate>" {
-    for_each = var.List or var.Map
+    for_each = any Collection var (list, set, map) or Structural var (tuple, object)
 
     content {
       key1 = <inlineBlockToDuplicate>.key
@@ -607,17 +609,21 @@ resource "someResource" "someName" {
 }
 ```
 - So, if your var.List or var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
-- List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT supported
+- `for_each` supports many types of variables, specifically Lists, Sets, Maps, Tuples, and Objects
 
-> This is confusing.  To summarize the `for_each` support:<br>Sets are allowed on resources but not on inline blocks<br>Lists are allowed on inline blocks but not on resources<br>Maps are allowed on both resources & inline blocks
+> This is confusing.  To summarize the `for_each` support:<br>for_each on Resources/Modules: Sets and Maps only<br>for_each on Dynamic Blocks: Lists, Sets, Tuples, Maps, and Objects are supported
 
 - When you specify the `for_each` parameter on an inline block, then you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
-  - For a List variable:
-    - `<inlineBlockToDuplicate>.key` = the numeric index of the current item in the List
-    - `<inlineBlockToDuplicate>.value` = the value of the current item in the List
-  - For a Map variable:
-    - `<inlineBlockToDuplicate>.key` = the key of the current item in the Map
-    - `<inlineBlockToDuplicate>.value` = the value of the current item in the Map
+  - For a Set variable:
+    - `<inlineBlockToDuplicate>.key` = the value of the current item in the Set
+    - `<inlineBlockToDuplicate>.value` = the value of the current item in the Set
+    - Just use `<inlineBlockToDuplicate>.value` in this case
+  - For a List/Tuple variable:
+    - `<inlineBlockToDuplicate>.key` = the numeric index of the current item in the List/Tuple
+    - `<inlineBlockToDuplicate>.value` = the value of the current item in the List/Tuple
+  - For a Map/Obect variable:
+    - `<inlineBlockToDuplicate>.key` = the key of the current item in the Map/Object
+    - `<inlineBlockToDuplicate>.value` = the value of the current item in the Map/Object
 
 # For Expressions
 - `for` expressions take an input of a List, Set, Tuple, Map, or Object
