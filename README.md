@@ -572,7 +572,7 @@ multi-line comment
 - **If you remove an item from the middle of the List, terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
 
 ### for_each Parameter
-- Every terraform resource or module has a meta-argument that you can use called `for_each`
+- Every Terraform `resource` or `module` block supports a meta-argument called `for_each`
   ```terraform
   resource "azurerm_storage_account" "someSymbolicName" {
     for_each = var.Set or var.Map
