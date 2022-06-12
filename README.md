@@ -408,7 +408,6 @@ module "someName"  {
 ```terraform
 # defining an output
 # remember, this is typically done in an outputs.tf file
-
 output "name" {
   value       = azurerm_storage_account.someSymbolicName.id  # can be any terraform expression that you wish to output
   description = "put a good description here"
