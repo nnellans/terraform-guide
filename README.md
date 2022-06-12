@@ -22,10 +22,10 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - Contains all of your `output` blocks
 - `variables.tf`
   - Contains all of your `variable` blocks
-- `versions.tf`
-  - Contains your top-level `terraform` block and all of your `provider` configuration blocks
-  - This one is fairly new and not always found.  If it does not exist, then the information is typically found at the top of `main.tf` instead.
-  - This one can also sometimes be found using the name `terraform.tf`
+- `versions.tf`, `terraform.tf`, `provider.tf`
+  - Recently, it has been quite common to put the top-level `terraform` block and all of your `provider` configuration blocks into separate Configuration Files.
+  - Some of the common filenames that are used for this are `versions.tf`, `terraform.tf`, and `provider.tf`
+  - You may not always find these files.  If they don't exist, then the information is typically found at the top of `main.tf` instead.
 
 # Terraform State
 
