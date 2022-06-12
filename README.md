@@ -2,6 +2,40 @@ Warning: This is not a beginner-friendly guide.  Think of this more like an adva
 
 If you are new to Terraform, then I would suggest going through the [HashiCorp Docs](https://www.terraform.io/docs) or doing a couple [HashiCorp Learn](https://learn.hashicorp.com/) courses first.
 
+---
+
+# Table of Contents
+
+This guide goes over a lot of things, and I tried my best to organize them in a logical manner.
+
+Part 1 - Terraform Files, Folder Structure, and Common Code Blocks
+- Configuration Files
+- Root Module
+- Folder Structure
+- Common Code Blocks
+Part 2 - Terraform State
+- State Files
+- Local Backend
+- Remote Backend
+- Terraform Workspaces
+Part 3 - Terraform Code Blocks
+- Input Variables
+- Local Values
+- Data Sources
+- Resources
+- Modules
+- Output Variables
+Part 4 - Everything Else
+- Syntax Notes
+- Loops (count and for_each)
+- For Expressions
+- String Directives
+- Lifecycle Settings
+- Terraform CLI Commands
+- .gitignore File
+
+---
+
 ## Terraform Files, Folder Structure, and Common Code Blocks
 
 ### Configuration Files
@@ -15,7 +49,7 @@ If you are new to Terraform, then I would suggest going through the [HashiCorp D
 - Terraform will automatically evaluate ALL Configuration Files that it finds in the **top level** of the directory you run it against
 - This top-level directory is commonly referred to as the "Root Module"
 
-### Typical Root Module File Structure
+### Typical Root Module Folder Structure
 - `main.tf`
   - Contains all of your `locals` blocks, `resource` blocks, `module` blocks, `data` blocks
 - `outputs.tf`
@@ -438,6 +472,40 @@ output "name" {
   - `value` is the only required parameter
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
 
+# Syntax Notes
+
+### String Interpolation
+```terraform
+"some string ${var.name} some more string"
+```
+
+### Heredoc / multiline strings
+```terraform
+user_data = <<-EOF
+            indented multi-line
+            strings will go here
+            EOF
+    
+user_data = <<EOF
+non-indented multi-line
+strings will go here
+EOF
+```
+- `EOF` can be replaced with any word you choose
+- If you use `<<` then the string will include any whitespace, if you use `<<-` then the string can be indented however you like to maintain readability.  Terraform will remove any whitespace in the front automatically
+
+### Comments
+```terraform
+# begins a single-line comment, this is the default comment style
+
+// also begins a single-line comment
+
+/* 
+this is a 
+multi-line comment
+*/
+```
+
 # Loops
 
 ### count Parameter
@@ -647,39 +715,7 @@ resource "azurerm_some_resource" "someName" {
 - `ignore_changes`
   - This is a list of resource attributes that you want Terraform to ignore.  If the value of that attribute differs in real life vs. the Terraform code, then Terraform will just ignore it and not try to make any changes
 
-# Syntax Notes
 
-### String Interpolation
-```terraform
-"some string ${var.name} some more string"
-```
-
-### Heredoc / multiline strings
-```terraform
-user_data = <<-EOF
-            indented multi-line
-            strings will go here
-            EOF
-    
-user_data = <<EOF
-non-indented multi-line
-strings will go here
-EOF
-```
-- `EOF` can be replaced with any word you choose
-- If you use `<<` then the string will include any whitespace, if you use `<<-` then the string can be indented however you like to maintain readability.  Terraform will remove any whitespace in the front automatically
-
-### Comments
-```terraform
-# begins a single-line comment, this is the default comment style
-
-// also begins a single-line comment
-
-/* 
-this is a 
-multi-line comment
-*/
-```
 
 # terraform CLI Commands
 
