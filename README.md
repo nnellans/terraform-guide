@@ -287,7 +287,8 @@ data "azurerm_storage_account" "someSymbolicName" {
 
 # use a data source
 data.azurerm_storage_account.someSymbolicName.<attribute>
-# Where `attribute` is specific to the resource that is being fetched by the data source. In this case it could be id, location, account_kind, etc.
+# Where `attribute` is specific to the resource that is being fetched by the data source
+# In this case it could be id, location, account_kind, etc.
 ```
 - Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run Terraform
 - Data Sources are Read-Only!
