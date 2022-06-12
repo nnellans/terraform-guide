@@ -416,7 +416,7 @@ module "someName"  {
   - This is a problem because terraform will need to delete the original `jean-claude[2]` and then create a new `jean-claude[1]`
 - **If you remove an item from the middle of the list, terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
 
-## for_each Parameter
+### for_each Parameter
 - Inside of a resource you can use a parameter called `for_each`
   ```terraform
   resource "someResource" "someName" {
@@ -457,7 +457,7 @@ resource "someResource" "someName" {
 - So, if your var.List or var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
 - List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT supported
 
-> This is confusing.  To summarize the `for_each` support:<br>Sets are allowed on resources but not on inline blocks<br>Lists are allowed on inline blocks but non on resources<br>Maps are allowed on both resources & inline blocks
+> This is confusing.  To summarize the `for_each` support:<br>Sets are allowed on resources but not on inline blocks<br>Lists are allowed on inline blocks but not on resources<br>Maps are allowed on both resources & inline blocks
 
 - When you specify the `for_each` parameter on an inline block, then you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
   - For a List variable:
@@ -511,7 +511,7 @@ resource "someResource" "someName" {
 
 # String Directives (WIP)
 
-## for Loops
+### for Loops
 - This let’s you loop over a List variable or a Map variable
   ```terraform
   <<EOF
@@ -529,7 +529,7 @@ resource "someResource" "someName" {
   %{ endfor ~}
   ```
 
-## Conditionals
+### Conditionals
 - This let’s you run an if statement within a string
   ```terraform
   %{ if someCondition }
