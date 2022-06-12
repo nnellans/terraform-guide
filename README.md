@@ -31,8 +31,9 @@ Your Terraform code will include multiple different types of blocks.  There are 
 
 #### terraform block
 - This is a pretty important block where you can specify various Terraform settings
-- This block supports hard-coded values only.
-- You can use the `required_version` parameter to specify which specific versions of Terraform are supported by this Root Module.  You can say that only a specific version is supported, you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information.
+- This block supports hard-coded values only
+- The `required_version` parameter is used to specify which version(s) of Terraform are supported by this Root Module.  You can say that only a specific version is supported, or you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information
+- The `required_providers` block declares which providers are used by this Root Module, so that Terraform can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code.  There are a lot of nuances to the `required_providers` block and I would recommend reading the [Provider Requirements](https://www.terraform.io/language/providers/requirements) documentation for more information
 ```terraform
 terraform {
 
