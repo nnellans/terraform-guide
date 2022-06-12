@@ -262,7 +262,26 @@ var.exampleVarName
 
 ### Map Variables
 - `type = map(string)` This defines a Map where all the values are Strings
+  ```terraform
+  mapName = {
+    string = string
+    string = string
+  }
+  ```
 - `type = map(number)` This defines a Map where all the values are Numbers
+  ```terraform
+  mapName = {
+    string = number
+    string = number
+  }
+  ```
+- `type = map(list(string))` This defines a Map where all the values are Lists of Strings
+  ```terraform
+  mapName = {
+    string = [ "string", "string" ]
+    string = [ "string", "string" ]
+  }
+  ```
 - `type = map`
   - This shorthand is not recommended any more.  Instead, use `map(any)`
   - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
