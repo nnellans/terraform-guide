@@ -2,15 +2,14 @@ Warning: This is not a beginner-friendly guide.  Think of this more like an adva
 
 If you are new to Terraform, then I would suggest going through the HashiCorp Docs or doing a couple HashiCorp Learn courses first.
 
-## Terraform Files and Folders
+## Terraform Files, Folder Structure, and Common Code Blocks
 
 ### Configuration Files
 - Files that contain Terraform code are officially called "configuration files"
-- Configuration Files can be written in the typical, native format which uses the `.tf` file extension, or they can be written in the alternate JSON format which uses the `.tf.json` file extension.  You will only see the alternate JSON format on very rare occassions.  So, this guide will be focused strictly on the native format using the `.tf` file extension
+- Configuration Files can be written in the typical, native format which uses the `.tf` file extension, or they can be written in the alternate JSON format which uses the `.tf.json` file extension.  The alternate JSON format is quite rare and you won't see if very often.  So, this guide will be focused strictly on the native format using the `.tf` file extension
 
 ### Root Module
-- When you run terraform commands such as `plan` or `apply` you run it against a directory of Configuration Files
-- This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
+- When you run terraform commands such as `plan` or `apply` you run it against a directory of Configuration Files.  This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
 - Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Note that using multiple Configuration Files can make it easier for code readers and code maintainers
 - Terraform will automatically evaluate ALL Configuration Files that it finds in the **top level** of the directory you run it against
 - This top-level directory is commonly referred to as the "Root Module"
@@ -23,9 +22,36 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - `variables.tf`
   - Contains all of your `variable` blocks
 - `versions.tf`, `terraform.tf`, `provider.tf`
-  - Recently, it has been quite common to put the top-level `terraform` block and all of your `provider` configuration blocks into separate Configuration Files
+  - Recently, it has been common to put the `terraform` configuration block and all of your `provider` configuration blocks into separate Configuration Files
   - Some of the common filenames that are used for this are `versions.tf`, `terraform.tf`, and `provider.tf`
   - You may not always find these files.  If they don't exist, then these blocks are typically found at the top of `main.tf` instead
+
+### Common Code Blocks
+
+#### terraform block
+```terraform
+terraform {
+
+  required_version = "=1.2.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "=3.7.0"
+    }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "=2.22.0"
+    }
+  }
+
+  backend "azurerm" {
+    resource_group_name  = "value"
+    storage_account_name = "value"
+  }
+
+}
+```
 
 # Terraform State
 
