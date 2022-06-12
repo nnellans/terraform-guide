@@ -1,11 +1,11 @@
-Warning: This is not a very beginner-friendly guide.  Think of this more like an advanced cheat sheet, of sorts.  I went through the HashiCorp documentation as well as various books and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.  Some of it is still a work in progress, and I will update this over time.
+Warning: This is not beginner-friendly guide.  Think of this more like an advanced cheat sheet.  I went through the HashiCorp documentation, as well as various books, and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.  Some of it is still a work in progress, and I will update this over time.
 
 If you are new to Terraform, then I would suggest going through the HashiCorp Docs or doing a couple HashiCorp Learn courses first.
 
 # Terraform Files and Folders
 
 ### Configuration Files
-- Files that contain Terraform code are called "configuration files"
+- Files that contain Terraform code are officially called "configuration files"
 - Configuration Files can in the typical, native format which uses the `.tf` file extension, or they can be in the alternate JSON format which uses the `.tf.json` file extension.  This guide will be focused strictly on the native form using the `.tf` file extension.
 
 ### Root Module
