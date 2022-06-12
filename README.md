@@ -2,7 +2,7 @@ Warning: This is not a beginner-friendly guide.  Think of this more like an adva
 
 If you are new to Terraform, then I would suggest going through the HashiCorp Docs or doing a couple HashiCorp Learn courses first.
 
-# Terraform Files and Folders
+## Terraform Files and Folders
 
 ### Configuration Files
 - Files that contain Terraform code are officially called "configuration files"
