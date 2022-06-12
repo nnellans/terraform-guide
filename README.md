@@ -571,7 +571,7 @@ multi-line comment
   - This is a problem because terraform will need to delete the original `jean-claude[2]` and then create a new `jean-claude[1]`.  It will also have to delete the original `chuck[3]` and then create a new `chuck[2]`
 - **If you remove an item from the middle of the List, terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
 
-### for_each Parameter
+### for_each Meta-Argument
 - Every Terraform `resource` or `module` block supports a meta-argument called `for_each`
   ```terraform
   resource "azurerm_storage_account" "someSymbolicName" {
@@ -581,7 +581,7 @@ multi-line comment
 - So, if your var.Set or var.Map has 5 entries, then you'll get 5 different copies of that Resource
 - List variables are NOT supported in Resource Block `for_each`.  You can convert a List variable to a Set variable:  `for_each = toset(var.List)`
 - `for_each` must reference hardcoded values, variables, data sources, and lists.  It can NOT reference a value that needs to be computed
-- When you specify the `for_each` parameter on a resource, then you can use new variables inside that resource:  `each.key` and `each.value`
+- When you specify the `for_each` meta-argument on a resource, then you can use new variables inside that resource:  `each.key` and `each.value`
   - For a Set variable:
     - `each.key` and `each.value` are both set to the current item in the Set
     - Typically, you would just use `each.value`
@@ -616,9 +616,8 @@ resource "someResource" "someName" {
 
 - When you specify the `for_each` parameter on an inline block, then you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
   - For a Set variable:
-    - `<inlineBlockToDuplicate>.key` = the value of the current item in the Set
-    - `<inlineBlockToDuplicate>.value` = the value of the current item in the Set
-    - Just use `<inlineBlockToDuplicate>.value` in this case
+    - `<inlineBlockToDuplication>.key` and `<inlineBlockToDuplication>.value` are both set to the current item in the Set
+    - Typically, you would just use `<inlineBlockToDuplicate>.value`
   - For a List/Tuple variable:
     - `<inlineBlockToDuplicate>.key` = the numeric index of the current item in the List/Tuple
     - `<inlineBlockToDuplicate>.value` = the value of the current item in the List/Tuple
