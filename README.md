@@ -40,12 +40,12 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 ### Local Backend
 - This is the default backend that Terraform will use unless you specify a different backend
-- This is just a file, named `terraform.tfstate`, that is automatically created in the Root Module
+- This is just a file named `terraform.tfstate` that is automatically created in the Root Module
 - Problems with a Local Backend:
-  - The State File is local to your computer, and can not be shared by other teammates
+  - The State File is local to your computer and can not be shared by other teammates
   - You can only use 1 local State File
     - (Workspaces are an exception, but they are not recommended)
-- You can start with a Local Backend, and later you change your code to use a Remote Backend instead. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
+- You can start with a Local Backend, and later you can change your code to use a Remote Backend instead. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
 
 ### Remote Backend
 - A Remote Backend stores your State Files in remote shared storage (like Azure Storage, AWS S3, etc.)
