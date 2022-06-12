@@ -1,15 +1,16 @@
 Warning: This is not a beginner-friendly guide.  Think of this more like an advanced cheat sheet.  I went through the HashiCorp documentation, as well as various books, and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.  Some of it is still a work in progress, and I will update this over time.
 
-If you are new to Terraform, then I would suggest going through the HashiCorp Docs or doing a couple HashiCorp Learn courses first.
+If you are new to Terraform, then I would suggest going through the [HashiCorp Docs](https://www.terraform.io/docs) or doing a couple [HashiCorp Learn](https://learn.hashicorp.com/) courses first.
 
 ## Terraform Files, Folder Structure, and Common Code Blocks
 
 ### Configuration Files
 - Files that contain Terraform code are officially called "configuration files"
-- Configuration Files can be written in the typical, native format which uses the `.tf` file extension, or they can be written in the alternate JSON format which uses the `.tf.json` file extension.  The alternate JSON format is quite rare and you won't see if very often.  So, this guide will be focused strictly on the native format using the `.tf` file extension
+- Configuration Files can be written in the typical, native format which uses the `.tf` file extension, or they can be written in the alternate JSON format which uses the `.tf.json` file extension.
+- The alternate JSON format is quite rare and you won't see if very often.  So, this guide will be focused strictly on the native format using the `.tf` file extension
 
 ### Root Module
-- When you run terraform CLI commands such as `plan` or `apply` you run it against a directory of Configuration Files.  This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
+- When you run Terraform CLI commands such as `plan` or `apply` you run it against a directory of Configuration Files.  This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
 - Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Note that using multiple Configuration Files can make it easier for code readers and code maintainers
 - Terraform will automatically evaluate ALL Configuration Files that it finds in the **top level** of the directory you run it against
 - This top-level directory is commonly referred to as the "Root Module"
@@ -153,16 +154,21 @@ provider "google" {
 
 # Input Variables (aka Variables)
 
-### Defining a variable
-- Remember, this is typically done in a `variables.tf` file
-  ```terraform
-  variable "Name" {
-    description = "put a good description here"
-    type        = string | number | bool | list | tuple | set | map | object | any
-    default     = set a default value here
-  }
-  ```
-- All three parameters are optional
+```terraform
+# defining a variable
+# remember, this is typically done in a variables.tf file
+variable "exampleVarName" {
+  description = "put a good description here"
+  type        = string | number | bool | list | tuple | set | map | object | any
+  default     = set a default value here
+}
+
+# use a variable by prefixing the variable's name with var
+resource "azurerm_storage_account" "someSymbolicName" {
+  name = var.exampleVarName
+}
+```
+- When defining a Variable, all three parameters are optional
   - If `type` is omitted, then the default is `any`
 - `type` can be a combination of different options:  `list(number)`
 
@@ -181,9 +187,6 @@ provider "google" {
   - `terraform.tfvars` files
   - `*.auto.tfvars` files
   - `-var` and `-var-file` commandline options, in the order they are given
-
-### Using a variable
-- `var.name`
 
 # Variable Types
 
@@ -257,41 +260,39 @@ provider "google" {
   - Example: `type = object( { name = string, age = number } )`
 
 # Local Values (aka Locals)
-
-- Instead of embedding complex expressions directly into resource properties, use Locals to contain the expressions
-- This approach makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
-
-### Defining a Local
 ```terraform
+# defining multiple locals
 locals {
   first  = "some text"
   second = "some text with a ${var.otherVariable} thrown in"
   third  = [ "list", "example" ]
 }
-```
-- You can have a single `locals` block where you define multiple Locals, or you can split them up into multiple `locals` blocks
 
-### Using a Local
-- `local.first`
-- `local.third[0]`
-
-# Data Sources
-- Data Sources are Read-Only!!!
-- Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform CLI
-- Each provider has their own list of supported Data Sources
-
-### Defining a Data Source
-```terraform
-data "azurerm_some_datasource" "name" {
-  one or more          = arguments
-  that are specific to = this data source
+# use a local by prefixing the local's name with local
+resource "azurerm_storage_account" "someSymbolicName" {
+  name = local.second
 }
 ```
-- The argument(s) that you specify can be thought of like search filters to limit what data is returned
+- Instead of embedding complex expressions directly into resource properties, use Locals to contain the expressions
+- This approach makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
+- You can have a single `locals` block where you define multiple Locals, or you can split them up into multiple `locals` blocks
 
-### Using a Data Source
-- `data.azurerm_some_datasource.<name>.<attribute>`
-- Where `attribute` is specific to the resource that is being fetched by the data source
+# Data Sources
+```terraform
+# defining a data source
+data "azurerm_storage_account" "someSymbolicName" {
+  name                = "name"
+  resource_group_name = "rgName"
+}
+
+# use a data source
+data.azurerm_storage_account.someSymbolicName.<attribute>
+# Where `attribute` is specific to the resource that is being fetched by the data source. In this case it could be id, location, account_kind, etc.
+```
+- Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run Terraform
+- Data Sources are Read-Only!
+- Each provider has their own list of supported Data Sources
+- When defining a Data Source, the argument(s) that you specify can be thought of like search filters to limit what data is returned
 
 # Remote State Data Source
 - Use these when you want to pull info from a foreign Terraform State File
