@@ -142,7 +142,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
       "third"
     ]
     ```
-  - Put all values on a single line, also separate by commas
+  - Put all values on a single line, also separated by commas
     ```terraform
     listName = [ "first", "second", "third" ]
     ```
