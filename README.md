@@ -163,7 +163,7 @@ variable "exampleVarName" {
   default     = set a default value here
 }
 
-# use a variable by prefixing the variable's name with var
+# use a variable by prefixing the variable's name with var.
 resource "azurerm_storage_account" "someSymbolicName" {
   name = var.exampleVarName
 }
@@ -268,7 +268,7 @@ locals {
   third  = [ "list", "example" ]
 }
 
-# use a local by prefixing the local's name with local
+# use a local by prefixing the local's name with local.
 resource "azurerm_storage_account" "someSymbolicName" {
   name = local.second
 }
