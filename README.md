@@ -164,9 +164,7 @@ variable "exampleVarName" {
 }
 
 # use a variable by prefixing the variable's name with var.
-resource "azurerm_storage_account" "someSymbolicName" {
-  name = var.exampleVarName
-}
+var.exampleVarName
 ```
 - When defining a Variable, all three parameters are optional
   - If `type` is omitted, then the default is `any`
@@ -269,9 +267,7 @@ locals {
 }
 
 # use a local by prefixing the local's name with local.
-resource "azurerm_storage_account" "someSymbolicName" {
-  name = local.second
-}
+local.second
 ```
 - Instead of embedding complex expressions directly into resource properties, use Locals to contain the expressions
 - This approach makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
@@ -287,19 +283,22 @@ data "azurerm_storage_account" "someSymbolicName" {
 
 # use a data source
 data.azurerm_storage_account.someSymbolicName.<attribute>
+
 # Where `attribute` is specific to the resource that is being fetched by the data source
 # In this case it could be id, location, account_kind, etc.
 ```
 - Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run Terraform
-- Data Sources are Read-Only!
 - Each provider has their own list of supported Data Sources
+- Data Sources are Read-Only!
 - When defining a Data Source, the argument(s) that you specify can be thought of like search filters to limit what data is returned
 
-# Remote State Data Source
+# Other types of Data Sources
+
+### Remote State Data Source
 - Use these when you want to pull info from a foreign Terraform State File
 - That foreign Terraform State must have some `outputs` already configured, because that's the information you're pulling from
 
-### Defining a Remote State Data Source
+#### Defining a Remote State Data Source
 ```terraform
 data "terraform_remote_state" "name" {
   backend = "azurerm"
@@ -312,10 +311,10 @@ data "terraform_remote_state" "name" {
 - In the `config` block you specify the storage and state file to connect to, as well as how to authenticate to that storage.  You can use the same parameters you used for the Remote Backend settings
 - Partial config is NOT supported for Remote State Data Sources
 
-### Using a Remote State Data Source:
+#### Using a Remote State Data Source:
 - `data.teraform_remote_state.<dataSourceName>.outputs.<outputName>`
 
-# External Data Source
+### External Data Source
 - Provides an interface between Terraform and an external program
 - Example:
   ```terraform
@@ -350,9 +349,9 @@ data "terraform_remote_state" "name" {
 - How to reference the data created from the external data source:
   - `data.external.<name>.result.<someAttribute>`
 
-# Template File Data Source
+### Template File Data Source
 
-### Defining a Template File Data Source
+#### Defining a Template File Data Source
 ```terraform
 data "template_file" "name" {
   template = file("somefile.txt")
@@ -367,7 +366,7 @@ data "template_file" "name" {
 - The string must be formatted like this: `in this string ${key1} will be replaced and ${key2} will also be replaced`
 - `template` could also be just a simple string value or string variable that you want to modify
 
-### Using a Template File Data Source
+#### Using a Template File Data Source
 - Using the rendered output from a Template File Data Source:
   - `data.template_file.<dataSourceName>.rendered`
 
@@ -397,31 +396,33 @@ module "someName"  {
 - `module.<someName>.<outputName>`
 - Tip: this could then be used in the root module’s outputs.tf
 
-### Miscellaneous
-- Some provider Resources let you configure certain settings either using inline blocks or by using totally separate top-level Resources.  For modules, it is preferred to use the separate top-level Resources
-  - When using separate top-level Resources, your module could configure 2 this way, and then you could add 3 more outside of the module, if you wanted
-  - If the settings were done in the module using inline blocks instead, then there would be no way to add extra settings to that outside of the module
+### Module Notes
+- Some Provider resources allow you to configure certain settings either using inline blocks or by using totally separate top-level Resources.  For example, an Azure Virtual Network resource will let you create Subnets either through an inline block inside the Virtual Network resource, or it will let you create Subnets in their own top-level resource, totally separate from the Virtual Network resource.
+  - For modules, it is preferred to use the separate top-level Resources whenever possible.  This allows you to create Subnets inside the Module as well as outside of the Module.
+  - For example, when using separate top-level Resources, your Module might be coded to create 2 Subnets with top-level Resources.  On top of that, you could also choose to create 3 more Subnets by using top-level Resources outside of the Module.  But, if the Subnets were defined in the Module as inline blocks on the Virtual Network resource, then there would be no way to add extra Subnets outside of the Module
 - Be careful when using the file() function inside of a Module, as the path to the file can get tricky.  Here are some special system variables that can help with this:
   - `path.module`:  references the folder where the child module is located
   - `path.root`:  references the folder of the root module
 
 # Output Variables (aka Outputs)
-- These are used when you want to output a value or values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
+```terraform
+# defining an output
+# remember, this is typically done in an outputs.tf file
 
-### Defining an Output
-- Remember, this is typically done in an `outputs.tf` file
-  ```terraform
-  output "Name" {
-    value       = any terraform expression that you wish to output
-    description = "put a good description here"
-    sensitive   = true
-  }
-  ```
+output "name" {
+  value       = azurerm_storage_account.someSymbolicName.id  # can be any terraform expression that you wish to output
+  description = "put a good description here"
+  sensitive   = true
+}
+
+# using an output
+# outputs are displayed in the console after running certain terraform commands
+# you can also use a Remote State Data Source (see above) to read Output Variables
+```
+- Outputs are used when you want to output a value or values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
+- When defining an Output:
   - `value` is the only required parameter
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
-
-### Using an Output
-- You can use a Remote State Data Source (see below) to read Output Variables
 
 # Loops
 
@@ -429,7 +430,7 @@ module "someName"  {
 - Every terraform resource has a parameter you can use called `count` which defines how many copies of that resource to create
 - Example:
   ```terraform
-  resource "someResource" "someName" {
+  resource "azurerm_storage_account" "someSymbolicName" {
     count = 5
   }
   ```
@@ -445,14 +446,14 @@ module "someName"  {
     ```terraform
     var.listOfNames = ["peter", "paul", "mary"]
     
-    resource "someResource" "someName" {
+    resource "azurerm_storage_account" "someSymbolicName" {
       count = length(var.listOfNames)
       name  = var.listOfNames[count.index]
     }
     ```
-- **When you use `count` on a resource, the resource now becomes a List**
-  - To reference a single instance of the resource created by count:  `azurerm_storage.someName[2].id`
-  - To reference all instances of the resource created by count:  `azurerm_storage.someName[*].id` (this is called a "splat expression")
+- Important: When you use `count` on a resource, the resource now becomes a List
+  - To reference a single instance of the resource created by count:  `azurerm_storage_account.someSymbolicName[2]`
+  - To reference all instances of the resource created by count:  `azurerm_storage_account.someSymbolicName[*]` (this is called a "splat expression")
 
 ### Drawback 1:  You can not use the `count` parameter with inline blocks
 - For example, take this resource:
@@ -483,7 +484,7 @@ module "someName"  {
 ### for_each Parameter
 - Inside of a resource you can use a parameter called `for_each`
   ```terraform
-  resource "someResource" "someName" {
+  resource "azurerm_storage_account" "someSymbolicName" {
     for_each = var.Set or var.Map
   }
   ```
