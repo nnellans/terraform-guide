@@ -514,7 +514,7 @@ multi-line comment
 # Loops
 
 ### count Meta-Argument
-- Every terraform resource or module has a meta-argument that you can use called `count` which defines how many copies of that item to create
+- Every Terraform `resource` or `module` block supports a meta-argument called `count` which defines how many copies of that item to create
 - Example:
   ```terraform
   resource "azurerm_storage_account" "someSymbolicName" {
