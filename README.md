@@ -264,27 +264,28 @@ var.exampleVarName
 - `type = map(string)` This defines a Map where all the values are Strings
   ```terraform
   mapName = {
-    string = "string"
-    string = "string"
+    stringKey = "stringValue"
+    stringKey = "stringValue"
   }
   ```
 - `type = map(number)` This defines a Map where all the values are Numbers
   ```terraform
   mapName = {
-    string = number
-    string = number
+    stringKey = numberValue
+    stringKey = numberValue
   }
   ```
 - `type = map(list(string))` This defines a Map where all the values are Lists of Strings
   ```terraform
   mapName = {
-    string = [ "string", "string" ]
-    string = [ "string", "string" ]
+    stringKey = [ "string", "string" ]
+    stringKey = [ "string", "string" ]
   }
   ```
 - `type = map`
   - This shorthand is not recommended any more.  Instead, use `map(any)`
   - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
+- Important: Keys are always strings.  Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
 - Setting the value of a Map variable, two options:
   - Put each pair on its own line, separated by line breaks:
     ```terraform
@@ -297,13 +298,11 @@ var.exampleVarName
     ```terraform
     mapName = { key1 = value1, key2 = value2 }
     ```
-- Keys are always strings.  Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
 - You can use either equal signs `key1 = value1` or colons `key1: value1`.  However, `terraform fmt` doesn't work on the colon style
 - Using a specific value from the Map, two options:
+  - `var.mapName.key1`
   - `var.mapName["1key"]`
     - You must use this if the key begins with a number
-  - `var.mapName.key1`
-    - You can also use this option (as long as your key does not start with a number)
 - Some example Map Functions:
   - Return just the values from a Map:  `values(var.mapName)`
 
