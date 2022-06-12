@@ -27,8 +27,12 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - You may not always find these files.  If they don't exist, then these blocks are typically found at the top of `main.tf` instead
 
 ### Common Code Blocks
+Your Terraform code will include multiple different types of blocks.  There are some that configure settings on your environment, like the `terraform` block and the `provider` blocks.  There are blocks that actually create resources, like the `resource` and `module` blocks.  Then, there are blocks that deal with input variables (`variable`), local values (`locals`), data sources (`data`), and outputs (`output`).
 
 #### terraform block
+- This is a pretty important block where you can specify various Terraform settings
+- This block supports hard-coded values only.
+- You can use the `required_version` parameter to specify which specific versions of Terraform are supported by this Root Module.  You can say that only a specific version is supported, you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information.
 ```terraform
 terraform {
 
