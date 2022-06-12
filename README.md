@@ -29,9 +29,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 ### Common Code Blocks
 Your Terraform code will include multiple different types of blocks.  There are some that configure settings on your environment, like the `terraform` block and the `provider` blocks.  There are blocks that actually create resources, like the `resource` and `module` blocks.  Then, there are blocks that deal with input variables (`variable`), local values (`locals`), data sources (`data`), and outputs (`output`).
 
-#### terraform block
-- This is a pretty important block where you can specify various Terraform settings
-- This block supports hard-coded values only
+### terraform block
 ```terraform
 terraform {
 
@@ -55,14 +53,14 @@ terraform {
 
 }
 ```
+- This is a pretty important block where you can specify various Terraform settings
+- This block supports hard-coded values only
 - The `required_version` parameter is used to specify which version(s) of Terraform are supported by this Root Module.  You can say that only a specific version is supported, or you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information
 - The `required_providers` block declares which providers are used by this Root Module, so that Terraform can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code.  There are a lot of nuances to the `required_providers` block and I would recommend reading the [Provider Requirements](https://www.terraform.io/language/providers/requirements) documentation for more information
 - The `backend` block is used to configure which Backend Terraform will use to store the State File.  More information on Backends can be found later in this guide
 - The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) documentation for more information
 
-#### provider blocks
-- Providers are what allow Terraform to talk to the APIs of Cloud vendors, SaaS vendors, and other vendors
-- Each Provider may have its own unique settings that you must configure in order to talk to that vendor's API
+### provider blocks
 ```terraform
 provider "aws" {
   region = "us-east-1"
@@ -77,6 +75,8 @@ provider "google" {
   region  = "us-central1"
 }
 ```
+- Providers are what allow Terraform to talk to the APIs of Cloud vendors, SaaS vendors, and other vendors
+- Each Provider may have its own unique settings that you must configure in order to talk to that vendor's API
 
 # Terraform State
 
