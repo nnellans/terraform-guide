@@ -230,10 +230,8 @@ var.exampleVarName
 # Variable Types
 
 ### List Variables
-- `type = list(string)`
-  - This defines a List of all Strings
-- `type = list(number)`
-  - This defines a List of all Numbers
+- `type = list(string)` This defines a List of all Strings
+- `type = list(number)` This defines a List of all Numbers
 - `type = list`
   - This shorthand is not recommended any more.  Instead, use `list(any)`
   - When using `list` or `list(any)` the List values must still all be the same Type (string, number, etc.)
@@ -263,10 +261,8 @@ var.exampleVarName
   - Example: `type = tuple( [ string, number, bool ] )`
 
 ### Map Variables
-- `type = map(string)`
-  - This defines a Map where all the values are Strings
-- `type = map(number)`
-  - This defines a Map where all the values are Numbers
+- `type = map(string)` This defines a Map where all the values are Strings
+- `type = map(number)` This defines a Map where all the values are Numbers
 - `type = map`
   - This shorthand is not recommended any more.  Instead, use `map(any)`
   - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
