@@ -13,11 +13,13 @@ Part 1 - Terraform Files, Folder Structure, and Common Code Blocks
 - Root Module
 - Folder Structure
 - Common Code Blocks
+
 Part 2 - Terraform State
 - State Files
 - Local Backend
 - Remote Backend
 - Terraform Workspaces
+
 Part 3 - Terraform Code Blocks
 - Input Variables
 - Local Values
@@ -25,6 +27,7 @@ Part 3 - Terraform Code Blocks
 - Resources
 - Modules
 - Output Variables
+
 Part 4 - Everything Else
 - Syntax Notes
 - Loops (count and for_each)
