@@ -6,14 +6,14 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 ### Configuration Files
 - Files that contain Terraform code are officially called "configuration files"
-- Configuration Files can in the typical, native format which uses the `.tf` file extension, or they can be in the alternate JSON format which uses the `.tf.json` file extension.  This guide will be focused strictly on the native form using the `.tf` file extension.
+- Configuration Files can be written in the typical, native format which uses the `.tf` file extension, or they can be written in the alternate JSON format which uses the `.tf.json` file extension.  This guide will be focused strictly on the native format using the `.tf` file extension
 
 ### Root Module
-- When you run terraform commands such as `plan` or `apply` you run it against a directory.
-- This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files.
-- Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Note that using multiple Configuration Files can make it easier for code readers and code maintainers.
-- Terraform will automatically evaluate ALL Configuration Files that it finds in the **top level** of the directory you run it against.
-- This top-level directory is commonly referred to as the "Root" Module.
+- When you run terraform commands such as `plan` or `apply` you run it against a directory of Configuration Files
+- This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
+- Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Note that using multiple Configuration Files can make it easier for code readers and code maintainers
+- Terraform will automatically evaluate ALL Configuration Files that it finds in the **top level** of the directory you run it against
+- This top-level directory is commonly referred to as the "Root Module"
 
 ### Typical Root Module File Structure
 - `main.tf`
@@ -23,35 +23,38 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - `variables.tf`
   - Contains all of your `variable` blocks
 - `versions.tf`, `terraform.tf`, `provider.tf`
-  - Recently, it has been quite common to put the top-level `terraform` block and all of your `provider` configuration blocks into separate Configuration Files.
+  - Recently, it has been quite common to put the top-level `terraform` block and all of your `provider` configuration blocks into separate Configuration Files
   - Some of the common filenames that are used for this are `versions.tf`, `terraform.tf`, and `provider.tf`
-  - You may not always find these files.  If they don't exist, then the information is typically found at the top of `main.tf` instead.
+  - You may not always find these files.  If they don't exist, then these blocks are typically found at the top of `main.tf` instead
 
 # Terraform State
 
 ### State Files
 - State Files use a custom JSON format
-- You should NEVER manually edit State Files
-  - Instead, use commands like `terraform import` and `terraform state` to modify the state
+- You should NEVER manually edit State Files.  Instead, use commands like `terraform import` and `terraform state` to modify the state
 - You should NEVER store your State Files in Version Control Systems like Git:
-  - State Files often include passwords and sensitive information, and State Files are stored in plain text!  You do NOT want a file like this stored in your Git repository.
+  - State Files often include passwords and other sensitive information
+  - State Files are stored in plain text!
+  - You do NOT want a file like this stored in your Git repository
 - Make sure your State Files are stored in a secure location and accessible only by users or accounts who require access
 
 ### Local Backend
-- This is the default, unless you manually specify a different Backend
-- This is simply a file, named `terraform.tfstate`, that is created in the current directory
-- Problems:
+- This is the default backend that Terraform will use unless you specify a different backend
+- This is just a file, named `terraform.tfstate`, that is automatically created in the Root Module
+- Problems with a Local Backend:
   - The State File is local to your computer, and can not be shared by other teammates
-  - You are restricted to using only 1 local State File
-- You can start with a Local Backend, and later you can add a Remote Backend to your code. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
+  - You can only use 1 local State File
+    - (Workspaces are an exception, but they are not recommended)
+- You can start with a Local Backend, and later you change your code to use a Remote Backend instead. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
 
 ### Remote Backend
-- A Remote Backend stores your State Files in remote shared storage (like Azure Storage Accounts, AWS S3 Buckets, etc.)
+- A Remote Backend stores your State Files in remote shared storage (like Azure Storage, AWS S3, etc.)
 - Most Remote Backends support:
   - Encryption at rest
   - Encryption in transit
   - File locking, so only 1 person can run a `terraform apply` command at a time
-- Configuring a Remote Backend is done in a `backend` block inside the root `terraform` block:
+- You can only configure 1 Remote Backend per Root Module
+- Configuring a Remote Backend is done in the `backend` block inside the root `terraform` block:
   ```terraform
   terraform {
     backend "azurerm" {
@@ -61,19 +64,20 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
     }
   }
   ```
-- The keys & values mentioned above are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
+- The keys & values shown above are specific to the type of Remote Backend (in this case `azurerm`).  They specify:
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
-  - Read the documentation for your chosen Remote Backend type for more information.
-- `backend` blocks can NOT use Terraform variables or references, these values must be hard-coded
+  - Read the documentation for your chosen Remote Backend type for more information
+- `backend` blocks can NOT use Terraform variables or references, they must use hardcoded values
   - This is because Terraform sets the Remote Backend as the very first step, even before it processes variables
-  - Do NOT put sensitive values directly in the `backend` block.  You can leave these key/value pairs out of the block and provide them in other ways:
+  - Do NOT put sensitive values directly in the `backend` block
+  - You can remove some or all of the key/value pairs from the `backend` block and provide them in other ways:
     - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
     - Option 2 is to use a separate file:  `terraform.exe -backend-config=backend.hcl`
-      - Where `backend.hcl` is a file which contains only the key/value pairs that are needed by the backend.
-      - Do NOT check this file into version control if it contains sensitive values.
-    - Option 3 is setting special environment variables that the Remote Backend will automatically read from.  The environment variables must be set on the computer where terraform.exe will be run.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice.
-      - This is the preferred option, as credentials are kept out of your code.
+      - Where `backend.hcl` is a file which contains only the key/value pairs that are needed by the backend
+      - Do NOT check this file into version control if it contains sensitive values
+    - Option 3 is setting special environment variables that the Remote Backend will automatically read from.  The environment variables must be set on the computer where terraform.exe will be run.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice for more information
+      - This is the preferred option, as credentials are kept out of your code
 
 ### Terraform Workspaces
 - You may want to consider these as 'local' Workspaces, as they are different from Terraform Cloud Workspaces
@@ -82,7 +86,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - `<backend>\env:\workspace1\terraform.tfstate`
   - `<backend>\env:\workspace2\terraform.tfstate`
 - Switching Workspaces is equivalent to changing the path where your State File is stored
-- In general, these are confusing.  It can be easy to mix up Workspaces and forget which one you are currently working with.
+- In general, these are confusing.  It can be easy to mix up Workspaces and forget which one you are currently working with
 - If possible, stay away from using these!
 
 # Input Variables (aka Variables)
@@ -102,10 +106,11 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 ### How to set values of Variables:
 - You can set a `default` value inside the Variable definition
-- Set an environment variable with the value you want to use, and the name of `TF_VAR_<varName>`
+- Set an environment variable with the name of `TF_VAR_<varName>` and the value that you want
   - Linux: `export TF_VAR_varName=value`
+  - PowerShell: `$env:TF_VAR_varName = 'value'`
 - Using a file with a `.tfvars` extension that lists Variable names and their values
-  - Option 1: Terraform will automatically load your file if it is placed in your Root Module directory and it is named:  `terraform.tfvars` or `*.auto.tfvars`
+  - Option 1: Terraform will automatically load your file if it is placed in your Root Module and it is named `terraform.tfvars` or `*.auto.tfvars`
   - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform plan -var-file=somefile.tfvars`
 - You can pass a value with the `-var` switch: `terraform plan -var "name=value"`
 - If not set by any other method, then Terraform will interactively prompt you for a value when you run `terraform apply`
@@ -120,51 +125,61 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 # Variable Types
 
-### List/Array Variables
+### List Variables
 - `type = list(string)`
-  - This defines a List of all Strings.
+  - This defines a List of all Strings
 - `type = list(number)`
-  - This defines a List of all Numbers.
+  - This defines a List of all Numbers
 - `type = list`
   - This shorthand is not recommended any more.  Instead, use `list(any)`
   - When using `list` or `list(any)` the List values must still all be the same Type (string, number, etc.)
-- Setting the value of a List variable:
-  ```terraform
-  listName = [ "first", "second", "third" ]
-  ```
+- Setting the value of a List variable, two options:
+  - Put each value on its own line, separated by commas
+    ```terraform
+    listName = [
+      "first",
+      "second",
+      "third"
+    ]
+    ```
+  - Put all values on a single line, also separate by commas
+    ```terraform
+    listName = [ "first", "second", "third" ]
+    ```
+  - A comma after the last value is allowed, but not required
 - Using a specific value from the List:  `var.listName[3]`
-- Lists are zero-based, so the the first entry is always `var.listName[0]`
+- Lists are zero-based, so the the first entry is always index 0:  `var.listName[0]`
 - Some example List Functions:
   - Find the number of items inside a list:  `length(var.listName)`
 
 ### Tuple Variables
-- This is the 'structural' version of a List variable.
-- It allows you to define a schema (within square brackets), which can use different variable Types inside the Tuple, instead of being restricted to the same variable Type when using a List.
+- This is the 'structural' version of a List variable
+- It allows you to define a schema (within square brackets), allowing you to use different variable Types inside the Tuple (instead of being restricted to the same variable Type when using a List)
   - `type = tuple( [schema] )`
-  - `type = tuple( [ string, number, bool ] )`
+  - Example: `type = tuple( [ string, number, bool ] )`
 
 ### Map Variables
 - `type = map(string)`
-  - This defines a Map where all the values are Strings.
+  - This defines a Map where all the values are Strings
 - `type = map(number)`
-  - This defines a Map where all the values are Numbers.
+  - This defines a Map where all the values are Numbers
 - `type = map`
   - This shorthand is not recommended any more.  Instead, use `map(any)`
   - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
 - Setting the value of a Map variable, two options:
-  - Put each pair on a new line:
+  - Put each pair on its own line, separated by line breaks:
     ```terraform
     mapName = {
       key1 = value1
       key2 = value2
     }
     ```
-  - For a single line, you must use commas to separate key/value pairs:
+  - For a single line, you must use commas to separate each pair:
     ```terraform
     mapName = { key1 = value1, key2 = value2 }
     ```
 - Keys are always strings.  Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
-- You can use either equal signs `key1 = value1` or colons `key1 : value1`.  However, `terraform fmt` doesn't work on the colon style.
+- You can use either equal signs `key1 = value1` or colons `key1: value1`.  However, `terraform fmt` doesn't work on the colon style
 - Using a specific value from the Map, two options:
   - `var.mapName["1key"]`
     - You must use this if the key begins with a number
@@ -174,10 +189,10 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
   - Return just the values from a Map:  `values(var.mapName)`
 
 ### Object Variables
-- This is the 'structural' version of a Map variable.
-- It allows you to define a schema (within curly brackets), which can use different variable Types inside the Object, instead of being restricted to the same variable Type when using a Map.
+- This is the 'structural' version of a Map variable
+- It allows you to define a schema (within curly brackets), which can use different variable Types inside the Object (instead of being restricted to the same variable Type when using a Map)
   - `type = object( {schema} )`
-  - `type = object( { name = string, age = number } )`
+  - Example: `type = object( { name = string, age = number } )`
 
 # Local Values (aka Locals)
 
@@ -199,10 +214,10 @@ locals {
 - `local.third[0]`
 
 # Output Variables (aka Outputs)
-- These are used when you want to output a value or values from one Terraform Root Module, and consume the values in a separate Terraform Root Module.
+- These are used when you want to output a value or values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
 
 ### Defining an Output
-- Remember, this is typically done in a `outputs.tf` file
+- Remember, this is typically done in an `outputs.tf` file
   ```terraform
   output "Name" {
     value       = any terraform expression that you wish to output
@@ -210,16 +225,16 @@ locals {
     sensitive   = true
   }
   ```
-  - `value` is the only required parameter.
+  - `value` is the only required parameter
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
 
 ### Using an Output
-- You can use a Remote State Data Source (see below) to read Output Variables.
+- You can use a Remote State Data Source (see below) to read Output Variables
 
 # Data Sources
 - Data Sources are Read-Only!!!
-- Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform.
-- Each provider has their own list of supported Data Sources.
+- Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform
+- Each provider has their own list of supported Data Sources
 
 ### Defining a Data Source
 ```terraform
@@ -228,15 +243,15 @@ data "azurerm_some_datasource" "name" {
   that are specific to = this data source
 }
 ```
-- The argument(s) that you specify can be thought of like search filters to limit what data is returned.
+- The argument(s) that you specify can be thought of like search filters to limit what data is returned
 
 ### Using a Data Source
 - `data.azurerm_some_datasource.<name>.<attribute>`
 - Where `attribute` is specific to the resource that is being fetched by the data source
 
-## Remote State Data Source
-- Use these when you want to pull info from a foreign Terraform State File.
-- That foreign Terraform State must have some `outputs` already configured, because that's the information you're pulling from.
+# Remote State Data Source
+- Use these when you want to pull info from a foreign Terraform State File
+- That foreign Terraform State must have some `outputs` already configured, because that's the information you're pulling from
 
 ### Defining a Remote State Data Source
 ```terraform
@@ -248,13 +263,13 @@ data "terraform_remote_state" "name" {
   }
 }
 ```
-- In the `config` block you specify the storage and state file to connect to, as well as how to authenticate to that storage.  You can use the same parameters you used for the Remote Backend settings.
-- Partial config is NOT supported for Remote State Data Sources.
+- In the `config` block you specify the storage and state file to connect to, as well as how to authenticate to that storage.  You can use the same parameters you used for the Remote Backend settings
+- Partial config is NOT supported for Remote State Data Sources
 
 ### Using a Remote State Data Source:
 - `data.teraform_remote_state.<dataSourceName>.outputs.<outputName>`
 
-## External Data Source
+# External Data Source
 - Provides an interface between Terraform and an external program
 - Example:
   ```terraform
@@ -282,14 +297,14 @@ data "terraform_remote_state" "name" {
 - Terraform will re-run `program` each time that state is refreshed.
   - `program` is of type list(string)
     - First element is the program to run, and subsequent elements are optional commandline arguments.
-    - Terraform does not execute the program through a shell, so it is not necessary to escape shell metacharacters nor add quotes around arguments containing spaces.
+    - Terraform does not execute the program through a shell, so it is not necessary to escape shell metacharacters nor add quotes around arguments containing spaces
   - `query` is of type map(string)
     - Optional
     - These values are passed to the program as query arguments.
 - How to reference the data created from the external data source:
   - `data.external.<name>.result.<someAttribute>`
 
-## Template File Data Source
+# Template File Data Source
 
 ### Defining a Template File Data Source
 ```terraform
@@ -302,29 +317,61 @@ data "template_file" "name" {
   }
 }
 ```
-- The file you provide is processed as a string.  Any time a matching variable key is found in the string, it is replaced with the variable value specified.
+- The file you provide is processed as a string.  Any time a matching variable key is found in the string, it is replaced with the variable value specified
 - The string must be formatted like this: `in this string ${key1} will be replaced and ${key2} will also be replaced`
-- `template` could also be just a simple string value or string variable that you want to modify.
+- `template` could also be just a simple string value or string variable that you want to modify
 
 ### Using a Template File Data Source
 - Using the rendered output from a Template File Data Source:
   - `data.template_file.<dataSourceName>.rendered`
 
+# Modules
+
+- A Terraform Module is nothing more than a folder full of .tf files
+  - The module’s folder should include the usual suspects:  `main.tf`, `variables.tf`, `outputs.tf`
+    - `main.tf` = where you specify the resources that will be created by the module
+    - `variables.tf` = where you specify the variables that can be passed into the module when you call it
+    - `outputs.tf` = where you specify the values that will be returned when the module is called
+
+### Using a Child Module / Calling a Child Module:
+```terraform
+module "someName"  {
+  source = “path/to/the/module/folder”
+
+  key1 = value1
+  key2 = value2
+}
+```
+- The keys/values are your way of passing Input Variables to the Child Module
+- The Child Module defines what it accepts for Input Variables via its own `variables.tf` file in its own folder
+- Tip: The `source` attribute could point to a git repo if you wanted
+  - That way you could use git tags to create “versions” of your module, and then you can reference specific versions of each module
+
+### Reference an Output value that is generated by a Module
+- `module.<someName>.<outputName>`
+- Tip: this could then be used in the root module’s outputs.tf
+
+### Miscellaneous
+- Some provider Resources let you configure certain settings either using inline blocks or by using totally separate top-level Resources.  For modules, it is preferred to use the separate top-level Resources
+  - When using separate top-level Resources, your module could configure 2 this way, and then you could add 3 more outside of the module, if you wanted
+  - If the settings were done in the module using inline blocks instead, then there would be no way to add extra settings to that outside of the module
+- Be careful when using the file() function inside of a Module, as the path to the file can get tricky.  Here are some special system variables that can help with this:
+  - `path.module`:  references the folder where the child module is located
+  - `path.root`:  references the folder of the root module
+
 # Loops
 
-## count Parameter
-- Every terraform resource has a parameter you can use called `count`
-- It defines how many copies of that resource to create
+### count Parameter
+- Every terraform resource has a parameter you can use called `count` which defines how many copies of that resource to create
 - Example:
   ```terraform
   resource "someResource" "someName" {
     count = 5
   }
   ```
-- `count` must reference hardcoded values, variables, data sources, and lists
-  - It can NOT reference a value that needs to be computed
+- `count` must reference hard-coded values, variables, data sources, and lists.  It can NOT reference a value that needs to be computed
 - When you specify the `count` parameter on a resource, then you can use a new variable inside that resource:  `count.index`
-  - `count.index` represents the number of the loop that you’re currently on.
+  - `count.index` represents the number of the loop that you’re currently on
   - For example, say you had a resource with `count = 3`
     - The first resource will set `count.index = 0`
     - The second resource will set `count.index = 1`
@@ -333,17 +380,17 @@ data "template_file" "name" {
   - You can get creative with this by building a separate List variable that contains the values you would like to use inside of the resource that is using `count`
     ```terraform
     var.listOfNames = ["peter", "paul", "mary"]
+    
     resource "someResource" "someName" {
       count = length(var.listOfNames)
       name  = var.listOfNames[count.index]
     }
     ```
-- **When you use count on a resource, the resource now becomes an List**
+- **When you use `count` on a resource, the resource now becomes a List**
   - To reference a single instance of the resource created by count:  `azurerm_storage.someName[2].id`
-  - To reference all instances of the resource created by count:  `azurerm_storage.someName[*].id`
-    - This is called a "splat expression"
+  - To reference all instances of the resource created by count:  `azurerm_storage.someName[*].id` (this is called a "splat expression")
 
-### Drawback 1:  You can not use the count parameter with inline blocks.
+### Drawback 1:  You can not use the `count` parameter with inline blocks
 - For example, take this resource:
   ```terraform
   resource "someResource" "someName" {
@@ -356,9 +403,9 @@ data "template_file" "name" {
     }
   }
   ```
-  - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` parameter inside the inline-block.  However, that is NOT supported.
+  - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` parameter inside the inline-block.  However, that is NOT supported
 
-### Drawback 2:  Be careful when you remove a resource instance from the middle of the list.
+### Drawback 2:  Be careful when you remove a resource instance from the middle of the list
 - For example, say you used `count = 3` to create some users:
   - `user[0] = arnold`
   - `user[1] = sylvester`
@@ -377,21 +424,20 @@ data "template_file" "name" {
   }
   ```
 - So, if your var.Set or var.Map has 5 entries, then you'll get 5 different copies of that Resource
-- List variables are NOT supported in Resource Block `for_each`.  You must convert a List to a Set variable:  `for_each = toset(var.List)`
-- `for_each` must reference hardcoded values, variables, data sources, and lists.
-  - It can NOT reference a value that needs to be computed
+- List variables are NOT supported in Resource Block `for_each`.  You must convert a List variable to a Set variable:  `for_each = toset(var.List)`
+- `for_each` must reference hardcoded values, variables, data sources, and lists.  It can NOT reference a value that needs to be computed
 - When you specify the `for_each` parameter on a resource, then you can use new variables inside that resource:  `each.key` and `each.value`
   - For a Set variable:
     - `each.key` and `each.value` are both set to the current item in the Set
-    - Typically, you would just use `each.value` here
+    - Typically, you would just use `each.value`
   - For a Map variable:
     - `each.key` = the key of the current item in the Map
     - `each.value` = the value of the current item in the Map
 - When you use `for_each` on a resource, the resource now becomes a Map
-  - To reference a single instance of the resource created by `for_each`:  `azurerm_storage.someName[key].id`
+  - To reference a single instance of the resource created by for_each:  `azurerm_storage.someName[key].id`
 
-### Benefit 1:  You can now delete an instance from the middle of the set/map without any trouble.
-- Since the resource is now considered a Map, deleting from the middle will no longer affect items further down the chain.
+### Benefit 1:  You can now delete an instance from the middle of the set/map without any trouble
+- Since the resource is now considered a Map, deleting from the middle will no longer affect items further down the chain
 
 ### Benefit 2:  You can now use for_each inside of an inline block in a resource, by using a dynamic block
 ```terraform
@@ -409,11 +455,11 @@ resource "someResource" "someName" {
 }
 ```
 - So, if your var.List or var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
-- List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT.
+- List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT
   - This is confusing:
-  - Sets are allowed on resources but not on inline blocks.
-  - Lists are allowed on inline blocks but non on resources.
-  - Maps are allowed on both resources & inline blocks.
+  - Sets are allowed on resources but not on inline blocks
+  - Lists are allowed on inline blocks but non on resources
+  - Maps are allowed on both resources & inline blocks
 - When you specify the `for_each` parameter on an inline block, then you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
   - For a List variable:
     - `<inlineBlockToDuplicate>.key` = the numeric index of the current item in the List
@@ -430,42 +476,43 @@ resource "someResource" "someName" {
 
 ### [Square Brackets] return a Tuple
 
-#### Input a List, return a Tuple
-- `newList = [for <item> in var.List : <output> <condition>]`
-  - `<item>` is the local variable name to assign to each item in the list
-  - `<output>` is what to put into the resultant List, it can be an expression that modifies `<item>` in some way
-  - `<condition>` is optional and you could use it to further refine what values go into the resultant List
-- `newList = [for <index>, <item> in var.List : <output> <condition>]`
+#### Input a List/Set/Tuple, return a Tuple
+- `newTuple = [for <item> in var.List : <output> <condition>]`
+  - `<item>` is the local variable name to assign to each item in the list/set/tuple
+  - `<output>` is the value to put into the resultant Tuple, an expression that modifies `<item>` in some way
+  - `<condition>` is optional and you could use it to further refine what values go into the resultant Tuple
+- `newTuple = [for <index>, <item> in var.List : <output> <condition>]`
   - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
 - Example:
-  - `newList = [for name in var.List : upper(name) if length(name) < 5]`
+  - `newTuple = [for name in var.List : upper(name) if length(name) < 5]`
   - This looks at `var.List` and converts each entry to uppercase, returns only the names that are less than 5 characters, and stores the modified entries in `newList`
 
-#### Input a Map, return a Tuple
-- `newList = [for <key>, <value> in var.Map : <output> <condition>]`
+#### Input a Map/Object, return a Tuple
+- `newTuple = [for <key>, <value> in var.Map : <output> <condition>]`
 - The rest is the same as above
-- Example: `newList = [for first, last in var.Map : “${first} ${last}”]`
+- Example:
+  - `newTuple = [for first, last in var.Map : “${first} ${last}”]`
+  - This pulls out each key/value pair from `var.map`, combines them into a new string separated by a space, and puts the new string values into `newTuple
 
 ### {Curly Brackets} return an Object
 - Notice that this uses curly brackets instead of square brackets
 - Also notice the arrow sign `=>` separating `outputKey` & `outputValue`
 
-#### Input a List, return an Object
-- `newMap = {for <item> in var.List : <outputKey> => <outputValue> <condition>}`
-  - `<item>` is the local variable name to assign to each item in the list
-  - `<outputKey>` and `<outputValue>` is what to put into the resultant Map, they can be expressions that modify `<item>` in some way
-  - `<condition>` is optional and you could use it to further refine what key/value pairs go into the resultant Map
-- `newMap = {for <index>, <item> in var.List : <outputKey> => <outputValue> <condition>}`
+#### Input a List/Set/Tuple, return an Object
+- `newObject = {for <item> in var.List : <outputKey> => <outputValue> <condition>}`
+  - `<item>` is the local variable name to assign to each item in the list/set/tuple
+  - `<outputKey>` and `<outputValue>` is what to put into the resultant Object, they can be expressions that modify `<item>` in some way
+  - `<condition>` is optional and you could use it to further refine what key/value pairs go into the resultant Object
+- `newObject = {for <index>, <item> in var.List : <outputKey> => <outputValue> <condition>}`
   - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
 
-#### Input a Map, return an Object
-- `newMap = {for <key>, <value> in var.Map : <outputKey> => <outputValue> <condition>}`
+#### Input a Map/Object, return an Object
+- `newObject = {for <key>, <value> in var.Map : <outputKey> => <outputValue> <condition>}`
 - The rest is the same as above
 
-# String Directives
+# String Directives (WIP)
 
 ## for Loops
-- **Work In Progress**
 - This let’s you loop over a List variable or a Map variable
   ```terraform
   <<EOF
@@ -484,7 +531,6 @@ resource "someResource" "someName" {
   ```
 
 ## Conditionals
-- **Work In Progress**
 - This let’s you run an if statement within a string
   ```terraform
   %{ if someCondition }
@@ -500,38 +546,9 @@ resource "someResource" "someName" {
   %{ endif }
   ```
 
-# Modules
-
-- A terraform Module is nothing more than a folder full of .tf files.
-  - All the .tf files you have been writing in the root folder are considered the “root module”
-  - The module’s folder should include the usual suspects:  `main.tf`, `variables.tf`, `outputs.tf`
-    - `main.tf` = where you specify the resources that will be created
-    - `variables.tf` = where you specify the variables that can be passed into the module when you call it
-    - `outputs.tf` = where you specify what will be returned when the module is called
-- Using a Child Module / Calling a Child Module:
-  ```terraform
-  module "someName"  {
-    source = “path/to/the/module/folder”
-
-    key1 = value1
-    key2 = value2
-  }
-  ```
-  - The keys/values are your way of passing input parameters to the Child Module.
-  - The Child Module defines what is accepted for input parameters via its own `variables.tf` file in its own folder
-  - Tip: The `source` attribute could point to a git repo if you wanted.
-    - That way you could use git tags to create “versions” of your module, and then you can reference specific versions of each module.
-- Reference a value that is produced by a Module:
-  - `module.<someName>.<outputName>`
-  - Tip:  this could then be used in the root module’s outputs.tf
-- Some provider Resources let you configure certain settings either using inline blocks or by using totally separate Resources.  For modules, it is preferential to use the separate Resources.
-  - This way your module might configure 2 settings this way, and then you could add 3 more settings outside of the module if you wanted.
-  - If the settings were done in the module using inline blocks, then there would be no way to add extra settings to that outside of the module.
-- Be careful when using the file() function inside of a Child Module, as the path to the file can get tricky.  Here are some special system variables that can help with this:
-  - `path.module`:  references the folder where the child module is located
-  - `path.root`:  references the folder of the root module
-
 # Lifecycle Settings
+- Every terraform resource supports a Lifecycle block
+- It can configure how that resource is created, updated, or deleted.
 ```terraform
 resource "azurerm_some_resource" "someName" {
   key = value
@@ -543,18 +560,16 @@ resource "azurerm_some_resource" "someName" {
   }
 }
 ```
-- Every terraform resource supports a Lifecycle block
-- It can configure how that resource is created, updated, or deleted.
 - `create_before_destroy`
-  - By default, when terraform must replace a resource, it will first delete the old/existing one, and then it will create the new one after that.
-  - If your old/existing resource is being referenced by other resources, then terraform will not be able to delete it.
-  - The create_before_destroy option flip-flops this, so terraform will first create the new resource, update any references that are needed, and then delete the old/existing resource.
+  - By default, when terraform must replace a resource, it will first delete the old/existing one, and then it will create the new one after that
+  - If your old/existing resource is being referenced by other resources, then terraform will not be able to delete it
+  - The `create_before_destroy` option flip-flops this, so terraform will first create the new resource, update any references that are needed, and then delete the old/existing resource
 - `prevent_destroy`
-  - The prevent_destroy option will cause Terraform to exit on any attempt to delete that resource.
+  - The `prevent_destroy` option will cause Terraform to exit on any attempt to delete that resource
 - `ignore_changes`
-  - This is a list of resource attributes that you want Terraform to ignore.  If the value of that attribute differs in real life vs. the Terraform code, then Terraform will just ignore it and not try to make any changes.
+  - This is a list of resource attributes that you want Terraform to ignore.  If the value of that attribute differs in real life vs. the Terraform code, then Terraform will just ignore it and not try to make any changes
 
-# Random Syntax Notes
+# Syntax Notes
 
 ### String Interpolation
 ```terraform
@@ -590,57 +605,44 @@ multi-line comment
 
 # terraform.exe Commands
 
-## terraform apply
-- work in progress
-
-## terraform console
-- Interactive, read-only console to try out built-in functions, query the state of your infrastructure, etc.
-
-## terraform destroy
-- Looks at the current folder, and deletes all resources
-- There is no "undo" be very careful!
-
-## terraform fmt
-- work in progress
-
-## terraform graph
-- Looks at the current folder, and shows you the dependency graph for the resources
-- It outputs into a graph description language called DOT
-- You can use Graphviz or GraphvizOnline to convert into an image
-
-## terraform import
-- work in progress
-
-## terraform init
-- Downloads any providers that are found in your code, they are put here:  `<currentDirectory>\.terraform\`
-- You must run `init` each time you change settings for your remote backend
-- You must run `init` each time you reference a new Module, or change Module settings
-
-## terraform output
-- Looks at the current folder, and lists all of the Output Variables
-- List a specific Output Variable only:  `terraform output <name>`
-  - Tip:  this is great for scripts where you may need to grab an output variable from terraform and use it somewhere else.
-
-## terraform plan
-- work in progress
-
-## terraform state
-- work in progress
-
-## terraform workspace
-- To work with terraform workspaces
+- `terraform apply`
+  - work in progress
+- `terraform console`
+  - Interactive, read-only console to try out built-in functions, query the state of your infrastructure, etc.
+- `terraform destroy`
+  - Looks at the current folder, and deletes all resources
+  - There is no "undo" be very careful!
+- `terraform fmt`
+  - work in progress
+- `terraform graph`
+  - Looks at the current folder, and shows you the dependency graph for the resources
+  - It outputs into a graph description language called DOT
+  - You can use Graphviz or GraphvizOnline to convert into an image
+- `terraform import`
+  - work in progress
+- `terraform init`
+  - Downloads any providers that are found in your code, they are put here:  `<currentDirectory>\.terraform\`
+  - You must run `init` each time you change settings for your remote backend
+  - You must run `init` each time you reference a new Module, or change Module settings
+- `terraform output`
+  - Looks at the current folder, and lists all of the Output Variables
+  - List a specific Output Variable only:  `terraform output <name>`
+    - Tip:  this is great for scripts where you may need to grab an output variable from terraform and use it somewhere else.
+- `terraform plan`
+  - work in progress
+- `terraform state`
+  - work in progress
+- `terraform workspace`
+  - To work with terraform workspaces
 
 # .gitignore File
 
-### .terraform
-- Terraform’s scratch directory, is created inside each config folder where you run `terraform init` and includes the downloaded providers.
-
-### *.tfstate
-- Local state files, never check these into version control as they contain secrets in clear text
-
-### *.tfstate.backup
-- Backups of local state files
-
-### backend.hcl
-- The standard filename when you use partial configuration for Remote Backend.
-- You only need to ignore this if you're storing **sensitive** keys/values in this file.
+- `.terraform`
+  - Terraform’s scratch directory, is created inside each config folder where you run `terraform init` and includes the downloaded providers.
+- `*.tfstate`
+  - Local state files, never check these into version control as they contain secrets in clear text
+- `*.tfstate.backup`
+  - Backups of local state files
+- `backend.hcl`
+  - The standard filename when you use partial configuration for Remote Backend.
+  - You only need to ignore this if you're storing **sensitive** keys/values in this file.
