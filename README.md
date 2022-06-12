@@ -17,7 +17,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 
 ### Typical Root Module File Structure
 - `main.tf`
-  - Contains all of your `resource` blocks, `module` blocks, and `data` (data source) blocks
+  - Contains all of your `locals` blocks, `resource` blocks, `module` blocks, `data` (data source) blocks
 - `outputs.tf`
   - Contains all of your `output` blocks
 - `variables.tf`
