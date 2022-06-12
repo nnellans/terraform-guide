@@ -264,8 +264,8 @@ var.exampleVarName
 - `type = map(string)` This defines a Map where all the values are Strings
   ```terraform
   mapName = {
-    string = string
-    string = string
+    string = "string"
+    string = "string"
   }
   ```
 - `type = map(number)` This defines a Map where all the values are Numbers
