@@ -533,7 +533,7 @@ resource "someResource" "someName" {
 
 # For Expressions
 - `for` expressions take an input of a List, Set, Tuple, Map, or Object
-- `for` expressions output:
+- `for` expressions will output either:
   - a Tuple if you use square brackets `[ ]`
   - an Object if you use curly brackets `{ }`
 
