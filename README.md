@@ -9,7 +9,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 - Configuration Files can be written in the typical, native format which uses the `.tf` file extension, or they can be written in the alternate JSON format which uses the `.tf.json` file extension.  The alternate JSON format is quite rare and you won't see if very often.  So, this guide will be focused strictly on the native format using the `.tf` file extension
 
 ### Root Module
-- When you run terraform commands such as `plan` or `apply` you run it against a directory of Configuration Files.  This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
+- When you run terraform CLI commands such as `plan` or `apply` you run it against a directory of Configuration Files.  This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
 - Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Note that using multiple Configuration Files can make it easier for code readers and code maintainers
 - Terraform will automatically evaluate ALL Configuration Files that it finds in the **top level** of the directory you run it against
 - This top-level directory is commonly referred to as the "Root Module"
@@ -55,15 +55,20 @@ terraform {
 ```
 - This is a pretty important block where you can specify various Terraform settings
 - This block supports hard-coded values only
-- The `required_version` parameter is used to specify which version(s) of Terraform are supported by this Root Module.  You can say that only a specific version is supported, or you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information
-- The `required_providers` block declares which providers are used by this Root Module, so that Terraform can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code.  There are a lot of nuances to the `required_providers` block and I would recommend reading the [Provider Requirements](https://www.terraform.io/language/providers/requirements) documentation for more information
-- The `backend` block is used to configure which Backend Terraform will use to store the State File.  More information on Backends can be found later in this guide
+- The `required_version` parameter is used to specify which version(s) of Terraform CLI are supported by this Root Module.  You can say that only a specific version is supported, or you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information
+- The `required_providers` block declares which providers are used by this Root Module, so that Terraform CLI can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code.  There are a lot of nuances to the `required_providers` block and I would recommend reading the [Provider Requirements](https://www.terraform.io/language/providers/requirements) documentation for more information
+- The `backend` block is used to configure which Backend the Terraform CLI will use to store the State File.  More information on Backends can be found later in this guide
 - The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) documentation for more information
 
 ### provider blocks
 ```terraform
 provider "aws" {
   region = "us-east-1"
+}
+
+provider "aws" {
+  alias  = "second"
+  region = "us-east-2"
 }
 
 provider "azurerm" {
@@ -75,8 +80,14 @@ provider "google" {
   region  = "us-central1"
 }
 ```
-- Providers are what allow Terraform to talk to the APIs of Cloud vendors, SaaS vendors, and other vendors
-- Each Provider may have its own unique settings that you must configure in order to talk to that vendor's API
+- Providers are what allow Terraform CLI to talk to the APIs of Cloud vendors, SaaS vendors, and other vendors.  For example, the `aws` Provider allows Terraform to create AWS resources and use AWS data sources
+- Each Provider may have its own unique settings that you must configure in order to talk to that vendor's API.  This may include things such as the credentials used to authenticate to the vendor's API, which region to use, which subscription to use, etc.
+  - Do not put sensitive credentials directly in the `provider` block.  Again, passwords stored directly in code are bad!  Some Providers support alternate ways to provide these values, like using environment variables, and it is recommended to use these alternate methods.  Check out the documentation for your specific Provider for more information on what is supported by your Provider.
+- You may still occassionally see code that uses the `version` parameter inside of a `provider` block.  It's important to know that this is deprecated, do NOT use this.  Instead, you should specify the supported Provider versions in the `terraform` block (see above).
+- You can declare multiple `provider` blocks for a single Provider, each block using a different configuration.  See the 2 aws blocks in the example above.
+  - The first instance you define is considered the "default" Provider and does not need to use the `alias` parameter
+  - Any other instances you define must have a unique `alias` parameter that will be used to reference this instance
+- Read the [Provider Configuration](https://www.terraform.io/language/providers/configuration) documentation for more information
 
 # Terraform State
 
@@ -90,13 +101,13 @@ provider "google" {
 - Make sure your State Files are stored in a secure location and accessible only by users or accounts who require access
 
 ### Local Backend
-- This is the default backend that Terraform will use unless you specify a different backend
+- This is the default backend that Terraform CLI will use unless you specify a different backend
 - This is just a file named `terraform.tfstate` that is automatically created in the Root Module
 - Problems with a Local Backend:
   - The State File is local to your computer and can not be shared by other teammates
   - You can only use 1 local State File
     - (Workspaces are an exception, but they are not recommended)
-- You can start with a Local Backend, and later you can change your code to use a Remote Backend instead. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
+- You can start with a Local Backend, and later you can change your code to use a Remote Backend instead. Terraform CLI will recognize the local State File and prompt you to copy it to the new Remote Backend
 
 ### Remote Backend
 - A Remote Backend stores your State Files in remote shared storage (like Azure Storage, AWS S3, etc.)
@@ -120,14 +131,14 @@ provider "google" {
   - How to authenticate to the storage (service principal, access key, etc.)
   - Read the documentation for your chosen Remote Backend type for more information
 - `backend` blocks can NOT use Terraform variables or references, they must use hardcoded values
-  - This is because Terraform sets the Remote Backend as the very first step, even before it processes variables
+  - This is because Terraform CLI sets the Remote Backend as the very first step, even before it processes variables
   - Do NOT put sensitive values directly in the `backend` block
   - You can remove some or all of the key/value pairs from the `backend` block and provide them in other ways:
     - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
     - Option 2 is to use a separate file:  `terraform.exe -backend-config=backend.hcl`
       - Where `backend.hcl` is a file which contains only the key/value pairs that are needed by the backend
       - Do NOT check this file into version control if it contains sensitive values
-    - Option 3 is setting special environment variables that the Remote Backend will automatically read from.  The environment variables must be set on the computer where terraform.exe will be run.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice for more information
+    - Option 3 is setting special environment variables that the Remote Backend will automatically read from.  The environment variables must be set on the computer where terraform CLI will be run.  Each Remote Backend supports its own special environment variables.  Check the docs for your Remote Backend of choice for more information
       - This is the preferred option, as credentials are kept out of your code
 
 ### Terraform Workspaces
@@ -161,10 +172,10 @@ provider "google" {
   - Linux: `export TF_VAR_varName=value`
   - PowerShell: `$env:TF_VAR_varName = 'value'`
 - Using a file with a `.tfvars` extension that lists Variable names and their values
-  - Option 1: Terraform will automatically load your file if it is placed in your Root Module and it is named `terraform.tfvars` or `*.auto.tfvars`
-  - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform plan -var-file=somefile.tfvars`
+  - Option 1: Terraform CLI will automatically load your file if it is placed in your Root Module and it is named `terraform.tfvars` or `*.auto.tfvars`
+  - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform.exe plan -var-file=somefile.tfvars`
 - You can pass a value with the `-var` switch: `terraform plan -var "name=value"`
-- If not set by any other method, then Terraform will interactively prompt you for a value when you run `terraform apply`
+- If not set by any other method, then Terraform CLI will interactively prompt you for a value when you run `terraform apply`
 - Values are loaded in the following order, with the later options taking precedence over earlier ones:
   - Environment Variables
   - `terraform.tfvars` files
@@ -266,7 +277,7 @@ locals {
 
 # Data Sources
 - Data Sources are Read-Only!!!
-- Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform
+- Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform CLI
 - Each provider has their own list of supported Data Sources
 
 ### Defining a Data Source
@@ -653,7 +664,7 @@ multi-line comment
 */
 ```
 
-# terraform.exe Commands
+# terraform CLI Commands
 
 - `terraform apply`
   - work in progress
@@ -671,8 +682,8 @@ multi-line comment
 - `terraform import`
   - work in progress
 - `terraform init`
-  - Downloads any providers that are found in your code, they are put here:  `<currentDirectory>\.terraform\`
-  - You must run `init` each time you change settings for your remote backend
+  - Downloads any Providers that are found in your code, they are put here:  `<currentDirectory>\.terraform\`
+  - You must run `init` each time you change settings for your Remote Backend
   - You must run `init` each time you reference a new Module, or change Module settings
 - `terraform output`
   - Looks at the current folder, and lists all of the Output Variables
