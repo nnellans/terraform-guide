@@ -456,10 +456,12 @@ resource "someResource" "someName" {
 ```
 - So, if your var.List or var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
 - List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT supported
-  - This is confusing.  To summarize the `for_each` support:
-    - Sets are allowed on resources but not on inline blocks
-    - Lists are allowed on inline blocks but non on resources
-    - Maps are allowed on both resources & inline blocks
+
+> This is confusing.  To summarize the `for_each` support:
+  Sets are allowed on resources but not on inline blocks
+  Lists are allowed on inline blocks but non on resources
+  Maps are allowed on both resources & inline blocks
+
 - When you specify the `for_each` parameter on an inline block, then you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
   - For a List variable:
     - `<inlineBlockToDuplicate>.key` = the numeric index of the current item in the List
