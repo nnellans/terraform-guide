@@ -9,33 +9,33 @@ If you are new to Terraform, then I would suggest going through the [HashiCorp D
 This guide goes over a lot of things, and I tried my best to organize them in a logical manner.
 
 Part 1 - Terraform Files, Folder Structure, and Common Code Blocks
-- Configuration Files
-- Root Module
-- Folder Structure
-- Common Code Blocks
+- [Configuration Files](README.md#configuration-files)
+- [Root Module](README.md#root-module)
+- [Folder Structure](README.md#typical-root-module-folder-structure)
+- [Common Code Blocks](README.md#common-code-blocks)
 
 Part 2 - Terraform State
-- State Files
-- Local Backend
-- Remote Backend
-- Terraform Workspaces
+- [State Files](README.md#state-files)
+- [Local Backend](README.md#local-backend)
+- [Remote Backend](README.md#remote-backend)
+- [Terraform Workspaces](README.md#terraform-workspaces)
 
 Part 3 - Terraform Code Blocks
-- Input Variables
-- Local Values
-- Data Sources
-- Resources
-- Modules
-- Output Variables
+- [Input Variables](README.md#input-variables-aka-variables)
+- [Local Values](README.md#local-values-aka-locals)
+- [Data Sources](README.md#data-sources)
+- [Resources](README.md#resources)
+- [Modules](README.md#modules)
+- [Output Variables](README.md#output-variables-aka-outputs)
 
 Part 4 - Everything Else
-- Syntax Notes
-- Loops (count and for_each)
-- For Expressions
-- String Directives
-- Lifecycle Settings
-- Terraform CLI Commands
-- .gitignore File
+- [Syntax Notes](README.md#syntax-notes)
+- [Loops (count and for_each)](README.md#loops)
+- [For Expressions](README.md#for-expressions)
+- [String Directives](README.md#string-directives-wip)
+- [Lifecycle Settings](README.md#lifecycle-settings)
+- [Terraform CLI Commands](README.md#terraform-cli-commands)
+- [.gitignore File](README.md#gitignore-file)
 
 ---
 
@@ -127,6 +127,8 @@ provider "google" {
   - Any other instances you define must have a unique `alias` parameter that will be used to reference this instance
 - Read the [Provider Configuration](https://www.terraform.io/language/providers/configuration) documentation for more information
 
+---
+
 # Terraform State
 
 ### State Files
@@ -188,6 +190,8 @@ provider "google" {
 - Switching Workspaces is equivalent to changing the path where your State File is stored
 - In general, these are confusing.  It can be easy to mix up Workspaces and forget which one you are currently working with
 - If possible, stay away from using these!
+
+---
 
 # Input Variables (aka Variables)
 
@@ -474,6 +478,8 @@ output "name" {
 - When defining an Output:
   - `value` is the only required parameter
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
+
+---
 
 # Syntax Notes
 
