@@ -11,7 +11,7 @@ If you are new to Terraform, then I would suggest going through the HashiCorp Do
 ### Root Module
 - When you run terraform commands such as `plan` or `apply` you run it against a directory.
 - This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files.
-- Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Using multiple Configuration Files can make it easier for code readers and code maintainers.
+- Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Note that using multiple Configuration Files can make it easier for code readers and code maintainers.
 - Terraform will automatically evaluate ALL Configuration Files that it finds in the **top level** of the directory you run it against.
 - This top-level directory is commonly referred to as the "Root" Module.
 
