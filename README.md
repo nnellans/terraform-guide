@@ -213,24 +213,6 @@ locals {
 - `local.first`
 - `local.third[0]`
 
-# Output Variables (aka Outputs)
-- These are used when you want to output a value or values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
-
-### Defining an Output
-- Remember, this is typically done in an `outputs.tf` file
-  ```terraform
-  output "Name" {
-    value       = any terraform expression that you wish to output
-    description = "put a good description here"
-    sensitive   = true
-  }
-  ```
-  - `value` is the only required parameter
-  - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
-
-### Using an Output
-- You can use a Remote State Data Source (see below) to read Output Variables
-
 # Data Sources
 - Data Sources are Read-Only!!!
 - Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run terraform
@@ -359,6 +341,24 @@ module "someName"  {
   - `path.module`:  references the folder where the child module is located
   - `path.root`:  references the folder of the root module
 
+# Output Variables (aka Outputs)
+- These are used when you want to output a value or values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
+
+### Defining an Output
+- Remember, this is typically done in an `outputs.tf` file
+  ```terraform
+  output "Name" {
+    value       = any terraform expression that you wish to output
+    description = "put a good description here"
+    sensitive   = true
+  }
+  ```
+  - `value` is the only required parameter
+  - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
+
+### Using an Output
+- You can use a Remote State Data Source (see below) to read Output Variables
+
 # Loops
 
 ### count Parameter
@@ -455,11 +455,11 @@ resource "someResource" "someName" {
 }
 ```
 - So, if your var.List or var.Map has 5 entries, then you'll get 5 different copies of that Inline Block
-- List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT
-  - This is confusing:
-  - Sets are allowed on resources but not on inline blocks
-  - Lists are allowed on inline blocks but non on resources
-  - Maps are allowed on both resources & inline blocks
+- List variables ARE supported in Inline Blocks `for_each`, but Set variables are NOT supported
+  - This is confusing.  To summarize the `for_each` support:
+    - Sets are allowed on resources but not on inline blocks
+    - Lists are allowed on inline blocks but non on resources
+    - Maps are allowed on both resources & inline blocks
 - When you specify the `for_each` parameter on an inline block, then you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
   - For a List variable:
     - `<inlineBlockToDuplicate>.key` = the numeric index of the current item in the List
