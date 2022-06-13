@@ -1,6 +1,8 @@
-Warning: This is not a beginner-friendly guide.  Think of this more like an advanced cheat sheet.  I went through the HashiCorp documentation, as well as various books, and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.  Some of it is still a work in progress, and I will update this over time.
+Warning: This is an advanced guide.  It assumes you already know the basics of Terraform, and it is not very beginner-friendly.  Think of this like an advanced cheat sheet.  I went through the HashiCorp documentation, as well as various books, and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.
 
-If you are new to Terraform, then I would suggest going through the [HashiCorp Docs](https://www.terraform.io/docs) or doing a couple [HashiCorp Learn](https://learn.hashicorp.com/) courses first.
+It's important to know that this is a live document.  Some of the sections are still a work in progress.  I will be continually updating it over time.
+
+If you are new to Terraform, then I would suggest first going through the [HashiCorp Docs](https://www.terraform.io/docs) or doing a couple [HashiCorp Learn](https://learn.hashicorp.com/) courses.
 
 ---
 
@@ -789,3 +791,12 @@ resource "azurerm_some_resource" "someName" {
 - `backend.hcl`
   - The standard filename when you use partial configuration for Remote Backend.
   - You only need to ignore this if you're storing **sensitive** keys/values in this file.
+
+---
+
+# References
+- [Terraform Up and Running](https://www.terraformupandrunning.com/)
+- [Terraform Settings](https://www.terraform.io/language/settings)
+- [Provider Requirements](https://www.terraform.io/language/providers/requirements)
+- [Version Constraints](https://www.terraform.io/language/expressions/version-constraints)
+- [Type Constraints](https://www.terraform.io/language/expressions/type-constraints)
