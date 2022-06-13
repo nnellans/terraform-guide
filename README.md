@@ -68,12 +68,6 @@ Part 4 - Everything Else
   - Some of the common filenames that are used for this are `versions.tf`, `terraform.tf`, and `provider.tf`
   - You may not always find these files.  If they don't exist, then these blocks are typically found at the top of `main.tf` instead
 
-### Common Code Blocks
-- Your Terraform code will include multiple different types of blocks
-- There are some that configure settings on your environment, like the `terraform` block and the `provider` blocks
-- There are blocks that actually create resources, like the `resource` and `module` blocks
-- Then, there are blocks that deal with input variables (`variable`), local values (`locals`), data sources (`data`), and outputs (`output`)
-
 ### terraform block
 ```terraform
 terraform {
@@ -85,9 +79,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "=3.7.0"
     }
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "=2.22.0"
+    aws = {
+      source  = "hashicorp/aws"
+      version = "=4.18.0"
+      configuration_aliases = [ aws.second ]
     }
   }
 
@@ -98,7 +93,6 @@ terraform {
 
 }
 ```
-- This is a pretty important block where you can specify various Terraform settings
 - This block supports hard-coded values only
 - The `required_version` parameter is used to specify which version(s) of Terraform CLI are supported by this Root Module.  You can say that only a specific version is supported, or you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information
 - The `required_providers` block declares which providers are used by this Root Module, so that Terraform CLI can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code.  There are a lot of nuances to the `required_providers` block and I would recommend reading the [Provider Requirements](https://www.terraform.io/language/providers/requirements) documentation for more information
@@ -125,13 +119,14 @@ provider "google" {
   region  = "us-central1"
 }
 ```
-- Providers are what allow Terraform CLI to talk to the APIs of Cloud vendors, SaaS vendors, and other vendors.  For example, the `aws` Provider allows Terraform to create AWS resources and use AWS data sources
 - Each Provider may have its own unique settings that you must configure in order to talk to that vendor's API.  This may include things such as the credentials used to authenticate to the vendor's API, which region to use, which subscription to use, etc.
-  - Do not put sensitive credentials directly in the `provider` block.  Again, passwords stored directly in code are bad!  Some Providers support alternate ways to provide these values, like using environment variables, and it is recommended to use these alternate methods.  Check out the documentation for your specific Provider for more information on what is supported by your Provider.
+  - Do not put sensitive credentials directly in the `provider` block.  Again, passwords stored directly in code are bad!
+  - Some Providers support alternate ways to provide these values, like using environment variables, and it is recommended to use these alternate methods.
+  - Check out the documentation for your specific Provider for more information on what is supported by your Provider.
 - You may still occassionally see code that uses the `version` parameter inside of a `provider` block.  It's important to know that this is deprecated, do NOT use this.  Instead, you should specify the supported Provider versions in the `terraform` block (see above).
-- You can declare multiple `provider` blocks for a single Provider, each block using a different configuration.  See the 2 aws blocks in the example above.
+- You can declare multiple `provider` blocks for a single Provider, with each block using a different configuration.  See the 2 `aws` blocks in the example above.
   - The first instance you define is considered the "default" Provider and does not need to use the `alias` parameter
-  - Any other instances you define must have a unique `alias` parameter that will be used to reference this instance
+  - Any other instances you define must have a unique `alias` parameter that will be used to reference this instance of the Provider
 - Read the [Provider Configuration](https://www.terraform.io/language/providers/configuration) documentation for more information
 
 ---
