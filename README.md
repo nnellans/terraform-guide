@@ -67,13 +67,10 @@ Part 4 - Everything Else
   - You may not always find these files.  If they don't exist, then these blocks are typically found at the top of `main.tf` instead
 
 ### Common Code Blocks
-Your Terraform code will include multiple different types of blocks.
-
-There are some that configure settings on your environment, like the `terraform` block and the `provider` blocks.
-
-There are blocks that actually create resources, like the `resource` and `module` blocks.
-
-Then, there are blocks that deal with input variables (`variable`), local values (`locals`), data sources (`data`), and outputs (`output`).
+- Your Terraform code will include multiple different types of blocks.
+- There are some that configure settings on your environment, like the `terraform` block and the `provider` blocks.
+- There are blocks that actually create resources, like the `resource` and `module` blocks.
+- Then, there are blocks that deal with input variables (`variable`), local values (`locals`), data sources (`data`), and outputs (`output`).
 
 ### terraform block
 ```terraform
