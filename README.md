@@ -1,4 +1,4 @@
-Warning: This is an advanced guide.  It assumes you already know the basics of Terraform, and it is not very beginner-friendly.  Think of this like an advanced cheat sheet.  I went through the HashiCorp documentation, as well as various books, and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.
+Warning: This is an advanced guide.  It is not very beginner friendly and it assumes you already know the basics of Terraform.  Think of this like an advanced cheat sheet.  I went through the HashiCorp documentation, as well as various books, and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.
 
 It's important to know that this is a live document.  Some of the sections are still a work in progress.  I will be continually updating it over time.
 
@@ -95,11 +95,12 @@ terraform {
 ```
 - This block supports hard-coded values only
 - The `required_version` parameter is used to specify which version(s) of Terraform CLI are supported by this Root Module.  You can say that only a specific version is supported, or you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information
-- The `required_providers` block declares which providers are used by this Root Module, so that Terraform CLI can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code.  There are a lot of nuances to the `required_providers` block and I would recommend reading the [Provider Requirements](https://www.terraform.io/language/providers/requirements) documentation for more information
-- The `backend` block is used to configure which Backend the Terraform CLI will use to store the State File.  More information on Backends can be found later in this guide
+- The `required_providers` block declares which providers are used by this Root Module (and any Child Modules too), so that Terraform CLI can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code.  There are a lot of nuances to the `required_providers` block.
+  - The `configuration_aliases` parameter is used when you have multiple copies of the same Provider
+- The `backend` block is used to configure which Backend the Terraform CLI will use.  More information on Backends can be found later in this guide
 - The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) documentation for more information
 
-### provider blocks
+### provider Configuration Blocks
 ```terraform
 provider "aws" {
   region = "us-east-1"
@@ -122,12 +123,12 @@ provider "google" {
 - Each Provider may have its own unique settings that you must configure in order to talk to that vendor's API.  This may include things such as the credentials used to authenticate to the vendor's API, which region to use, which subscription to use, etc.
   - Do not put sensitive credentials directly in the `provider` block.  Again, passwords stored directly in code are bad!
   - Some Providers support alternate ways to provide these values, like using environment variables, and it is recommended to use these alternate methods.
-  - Check out the documentation for your specific Provider for more information on what is supported by your Provider.
+  - Check out the documentation for your specific Provider for more information on what is supported by your Provider
 - You may still occassionally see code that uses the `version` parameter inside of a `provider` block.  It's important to know that this is deprecated, do NOT use this.  Instead, you should specify the supported Provider versions in the `terraform` block (see above).
 - You can declare multiple `provider` blocks for a single Provider, with each block using a different configuration.  See the 2 `aws` blocks in the example above.
   - The first instance you define is considered the "default" Provider and does not need to use the `alias` parameter
   - Any other instances you define must have a unique `alias` parameter that will be used to reference this instance of the Provider
-- Read the [Provider Configuration](https://www.terraform.io/language/providers/configuration) documentation for more information
+  - Don't forget to include the extra aliases in the `terraform` block as well, under the `required_providers` inline block
 
 ---
 
@@ -174,7 +175,7 @@ provider "google" {
   - Read the documentation for your chosen Remote Backend type for more information
 - `backend` blocks can NOT use Terraform variables or references, they must use hardcoded values
   - This is because Terraform CLI sets the Remote Backend as the very first step, even before it processes variables
-  - Do NOT put sensitive values directly in the `backend` block
+  - I'm warning you one last time, do NOT put sensitive values directly in the `backend` block
   - You can remove some or all of the key/value pairs from the `backend` block and provide them in other ways:
     - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
     - Option 2 is to use a separate file:  `terraform.exe -backend-config=backend.hcl`
@@ -232,6 +233,7 @@ var.exampleVarName
 # Variable Types
 
 ### List Variables
+Lists are represented by a pair of square brackets `[ ]` containing a comma-separated sequence of values.  For Lists, all the values must be of the same Type.
 - `type = list(string)` This defines a List of all Strings
 - `type = list(number)` This defines a List of all Numbers
 - `type = list`
@@ -257,12 +259,13 @@ var.exampleVarName
   - Find the number of items inside a list:  `length(var.listName)`
 
 ### Tuple Variables
-- This is the 'structural' version of a List variable
-- It allows you to define a schema (within square brackets), allowing you to use different variable Types inside the Tuple (instead of being restricted to the same variable Type when using a List)
+- This is the 'structural' version of the List type
+- It requires you to define a schema (within square brackets). This allows you to use different variable Types inside the Tuple
   - `type = tuple( [schema] )`
   - Example: `type = tuple( [ string, number, bool ] )`
 
 ### Map Variables
+Maps are represented by a pair of curly braces `{ }` containing a series of <KEY> = <VALUE> pairs.  For Maps, all of the values must be of the same Type.  The Keys are always of type String.
 - `type = map(string)` This defines a Map where all the values are Strings
   ```terraform
   mapName = {
@@ -287,7 +290,7 @@ var.exampleVarName
 - `type = map`
   - This shorthand is not recommended any more.  Instead, use `map(any)`
   - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
-- Important: Keys are always strings.  Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
+- Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
 - Setting the value of a Map variable, two options:
   - Put each pair on its own line, separated by line breaks:
     ```terraform
@@ -310,7 +313,7 @@ var.exampleVarName
 
 ### Object Variables
 - This is the 'structural' version of a Map variable
-- It allows you to define a schema (within curly brackets), which can use different variable Types inside the Object (instead of being restricted to the same variable Type when using a Map)
+- It requires you to define a schema (within curly brackets).  This allows you to use different variable Types for the Values of the Object
   - `type = object( {schema} )`
   - Example: `type = object( { name = string, age = number } )`
 
@@ -384,32 +387,30 @@ data "terraform_remote_state" "name" {
     }
   }
   ```
-- Requirements:
-  - The `program` must read all of the data passed to it on `stdin`
-    - The `program` must parse all of the data passed to it as a JSON object
-    - The JSON object must contain the contents of the `query`
-  - The `program` must produce a valid JSON object on `stdout`
-    - The JSON object must have all of its values as strings
-  - On successful completion
-    - The `program` must exit with a status of zero
-  - If there's an error
-    - The `program` must exit with a non-zero status
-    - It must print a human-readable error message (ideally a single line) to `stderr`
-    - `stdout` is ignored for an error
-- Terraform will re-run `program` each time that state is refreshed.
-  - `program` is of type list(string)
-    - First element is the program to run, and subsequent elements are optional commandline arguments.
-    - Terraform does not execute the program through a shell, so it is not necessary to escape shell metacharacters nor add quotes around arguments containing spaces
-  - `query` is of type map(string)
-    - Optional
-    - These values are passed to the program as query arguments.
+- The `program` must read all of the data passed to it on stdin
+  - The `program` must parse all of the data that's passed to it as a JSON object
+  - The JSON object must contain the contents of the `query`
+- The `program` must produce a valid JSON object on stdout
+  - The JSON object must have all of its values as Strings
+- On successful completion the `program` must exit with a status of zero
+- If there's an error
+  - The `program` must exit with a non-zero status
+  - It must print a human-readable error message (ideally a single line) to `stderr`
+  - `stdout` is ignored for an error
+- Terraform will re-run `program` each time that state is refreshed
+- `program` is of Type list(string)
+  - First element is the program to run, and subsequent elements are optional commandline arguments
+  - Terraform does not execute the program through a shell, so it is not necessary to escape shell metacharacters nor add quotes around arguments containing spaces
+- `query` is of Type map(string)
+  - Optional
+  - These values are passed to the program as query arguments
 - How to reference the data created from the external data source:
   - `data.external.<name>.result.<someAttribute>`
 
 ### Template File Data Source
 
-#### Defining a Template File Data Source
 ```terraform
+# defining a Template File Data Source
 data "template_file" "name" {
   template = file("somefile.txt")
 
@@ -418,14 +419,13 @@ data "template_file" "name" {
     key2 = value2
   }
 }
+
+# using the rendered output from a Template File Data Source
+data.template_file.<dataSourceName>.rendered
 ```
 - The file you provide is processed as a string.  Any time a matching variable key is found in the string, it is replaced with the variable value specified
 - The string must be formatted like this: `in this string ${key1} will be replaced and ${key2} will also be replaced`
 - `template` could also be just a simple string value or string variable that you want to modify
-
-#### Using a Template File Data Source
-- Using the rendered output from a Template File Data Source:
-  - `data.template_file.<dataSourceName>.rendered`
 
 # Resources
 - Resources are the most important element in the Terraform language.  Each `resource` block describes one or more infrastructure objects, such as virtual networks, compute instances, or higher-level components such as DNS records
@@ -436,9 +436,9 @@ resource "azurerm_storage_account" "someSymbolicName" {
   location = "someLocation
 }
 ```
-- In the example above, the resource type is `azurerm_storage_account` and if we look at the beginning of the resource type we can tell that it comes from the `azurerm` Provider.  Each Provider supports its own set of resource types.  Each Provider also defines the acceptable parameters to use for each resource type.  Check your Provider's documentation to learn more about the supported resource types and their supported parameters.
+- In the example above, the resource type is `azurerm_storage_account` and if we look at the beginning of the resource type we can tell that it comes from the `azurerm` Provider.  Each Provider supports its own set of resource types.  Each Provider also defines the acceptable parameters to use for each resource type.  Check your Provider's documentation to learn more about the supported resource types and their supported parameters
 - Terraform also supports a number of 'Meta-Arguments' that are available to use for each `resource` block, such as `depends_on`, `count`, `for_each`, `provider`, `lifecycle`, and `provisioner`
-- Further below, this guide will go over the `count`, `for_each`, and `lifecycle` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/resources/syntax#meta-arguments) for more information.
+- Further below, this guide will go over the `count`, `for_each`, and `lifecycle` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/resources/syntax#meta-arguments) for more information
 
 # Modules
 
@@ -456,27 +456,27 @@ module "someSymbolicName"  {
   key1 = value1
   key2 = value2
 }
+
+# reference an Output value that is generated by a Module
+module.someSymbolicName.<outputName>
 ```
 - The keys/value pairs are how you pass Input Variables to the Child Module
 - The Child Module defines what it accepts for Input Variables via its own `variables.tf` file in its own folder
 - Tip: The `source` attribute could point to a git repo if you wanted
   - That way you could use git tags to create “versions” of your module, and then you can reference specific versions of each module
 - Terraform also supports a number of 'Meta-Arguments' that are available to use for each `module` block, such as `depends_on`, `count`, `for_each`, and `providers`
-- Further below, this guide will go over the `count` and `for_each` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/modules/syntax#meta-arguments) for more information.
-
-### Reference an Output value that is generated by a Module
-- `module.someSymbolicName.<outputName>`
-- Tip: this could then be used in the Root Module’s outputs.tf
+- Further below, this guide will go over the `count` and `for_each` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/modules/syntax#meta-arguments) for more information
 
 ### Module Notes
-- Some Provider resources allow you to configure certain settings either using inline blocks or by using totally separate top-level Resources.  For example, an Azure Virtual Network resource will let you create Subnets either through an inline block inside the Virtual Network resource, or it will let you create Subnets in their own top-level resource, totally separate from the Virtual Network resource.
-  - For modules, it is preferred to use the separate top-level Resources whenever possible.  This allows you to create Subnets inside the Module as well as outside of the Module.
-  - For example, when using separate top-level Resources, your Module might be coded to create 2 Subnets with top-level Resources.  On top of that, you could also choose to create 3 more Subnets by using top-level Resources outside of the Module.  But, if the Subnets were defined in the Module as inline blocks on the Virtual Network resource, then there would be no way to add extra Subnets outside of the Module
+- Some Resource configuration can be provided as inline blocks inside parent Resource, or as totally separate top-level resources.
+  - Take Subnets for an example.  Subnets could be defined as inline blocks on the Virtual Network resource, or Subnets could be defined as their own top-level resources
+  - For Modules, it is always preferred to use the separate top-level resources whenever possible
 - Be careful when using the file() function inside of a Module, as the path to the file can get tricky.  Here are some special system variables that can help with this:
   - `path.module`:  references the folder where the child module is located
   - `path.root`:  references the folder of the root module
 
 # Output Variables (aka Outputs)
+Outputs are used when you want to output one or more values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
 ```terraform
 # defining an output
 # remember, this is typically done in an outputs.tf file
@@ -490,7 +490,6 @@ output "name" {
 # outputs are displayed in the console after running certain terraform commands
 # you can also use a Remote State Data Source (see above) to read Output Variables
 ```
-- Outputs are used when you want to output a value or values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
 - When defining an Output:
   - `value` is the only required parameter
   - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
