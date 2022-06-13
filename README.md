@@ -34,7 +34,7 @@ Part 4 - Everything Else
 - [Syntax Notes](README.md#syntax-notes)
 - [Loops (count and for_each)](README.md#loops)
 - [For Expressions](README.md#for-expressions)
-- [String Directives](README.md#string-directives-wip)
+- [String Directives](README.md#string-directives)
 - [Lifecycle Settings](README.md#lifecycle-settings)
 - [Terraform CLI Commands](README.md#terraform-cli-commands)
 - [.gitignore File](README.md#gitignore-file)
@@ -687,7 +687,8 @@ resource "someResource" "someName" {
 - `newObject = {for <key>, <value> in var.Map : <outputKey> => <outputValue> <condition>}`
 - The rest is the same as above
 
-# String Directives (WIP)
+# String Directives
+(WIP)
 
 ### for Loops
 - This let’s you loop over a List variable or a Map variable
@@ -723,8 +724,8 @@ resource "someResource" "someName" {
   %{ endif }
   ```
 
-# Lifecycle Settings
-- Every terraform resource supports a Lifecycle block
+# Lifecycle Settings Meta-Argument
+- Every terraform resource supports a `ifecycle` Meta-Argument block
 - It can configure how that resource is created, updated, or deleted.
 ```terraform
 resource "azurerm_some_resource" "someName" {
@@ -749,7 +750,7 @@ resource "azurerm_some_resource" "someName" {
 
 
 # terraform CLI Commands
-
+(WIP)
 - `terraform apply`
   - work in progress
 - `terraform console`
@@ -781,7 +782,7 @@ resource "azurerm_some_resource" "someName" {
   - To work with terraform workspaces
 
 # .gitignore File
-
+(WIP)
 - `.terraform`
   - Terraform’s scratch directory, is created inside each config folder where you run `terraform init` and includes the downloaded providers.
 - `*.tfstate`
