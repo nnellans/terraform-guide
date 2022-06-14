@@ -48,7 +48,7 @@ Part 4 - Everything Else
 - Configuration Files can be written in two different formats:
   - the typical, native format which uses the `.tf` file extension
   - the alternate JSON format which uses the `.tf.json` file extension
-- The alternate JSON format is quite rare and you won't see if very often.  This guide will focus strictly on the native format using the `.tf` file extension
+- The alternate JSON format is quite rare and you won't see if very often.  This guide will focus strictly on the native format
 
 ### Root Module
 - When you run Terraform CLI commands such as `plan` or `apply` you run it against a directory of Configuration Files.  This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
