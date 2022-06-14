@@ -724,7 +724,7 @@ resource "someResource" "someName" {
   ```
 
 # Lifecycle Settings Meta-Argument
-- Every terraform resource supports a `ifecycle` Meta-Argument block
+- Every terraform resource supports a `lifecycle` Meta-Argument block
 - It can configure how that resource is created, updated, or deleted.
 ```terraform
 resource "azurerm_some_resource" "someName" {
@@ -755,12 +755,12 @@ resource "azurerm_some_resource" "someName" {
 - `terraform console`
   - Interactive, read-only console to try out built-in functions, query the state of your infrastructure, etc.
 - `terraform destroy`
-  - Looks at the current folder, and deletes all resources
+  - Deletes all resources
   - There is no "undo" be very careful!
 - `terraform fmt`
   - work in progress
 - `terraform graph`
-  - Looks at the current folder, and shows you the dependency graph for the resources
+  - Shows you the dependency graph for the resources
   - It outputs into a graph description language called DOT
   - You can use Graphviz or GraphvizOnline to convert into an image
 - `terraform import`
@@ -770,7 +770,7 @@ resource "azurerm_some_resource" "someName" {
   - You must run `init` each time you change settings for your Remote Backend
   - You must run `init` each time you reference a new Module, or change Module settings
 - `terraform output`
-  - Looks at the current folder, and lists all of the Output Variables
+  - Lists all of the Output Variables
   - List a specific Output Variable only:  `terraform output <name>`
     - Tip:  this is great for scripts where you may need to grab an output variable from terraform and use it somewhere else.
 - `terraform plan`
