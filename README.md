@@ -276,8 +276,8 @@ Maps are represented by a pair of curly braces `{ }` containing a series of key/
 - `type = map(number)` This defines a Map where all the values are Numbers
   ```terraform
   mapName = {
-    stringKey = numberValue
-    stringKey = numberValue
+    stringKey = 500
+    stringKey = 32
   }
   ```
 - `type = map(list(string))` This defines a Map where all the values are Lists of Strings
