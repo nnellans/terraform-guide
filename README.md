@@ -98,7 +98,7 @@ terraform {
 - The `required_providers` block declares which providers are used by this Root Module (and any Child Modules too), so that Terraform CLI can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code
   - The `configuration_aliases` parameter is used when you have multiple copies of the same Provider
 - The `backend` block is used to configure which Backend the Terraform CLI will use
-- The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) documentation for more information
+- The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) docs for more info
 
 ### provider Configuration Blocks
 ```terraform
