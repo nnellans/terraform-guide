@@ -95,9 +95,9 @@ terraform {
 ```
 - This block supports hard-coded values only
 - The `required_version` parameter is used to specify which version(s) of Terraform CLI are supported by this Root Module.  You can say that only a specific version is supported, or you can specify a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information
-- The `required_providers` block declares which providers are used by this Root Module (and any Child Modules too), so that Terraform CLI can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code.  There are a lot of nuances to the `required_providers` block.
+- The `required_providers` block declares which providers are used by this Root Module (and any Child Modules too), so that Terraform CLI can install these Providers and use them.  This also allows you to specify which versions of each Provider are supported by your code
   - The `configuration_aliases` parameter is used when you have multiple copies of the same Provider
-- The `backend` block is used to configure which Backend the Terraform CLI will use.  More information on Backends can be found later in this guide
+- The `backend` block is used to configure which Backend the Terraform CLI will use
 - The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) documentation for more information
 
 ### provider Configuration Blocks
