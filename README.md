@@ -265,7 +265,7 @@ Lists are represented by a pair of square brackets `[ ]` containing a comma-sepa
   - Example: `type = tuple( [ string, number, bool ] )`
 
 ### Map Variables
-Maps are represented by a pair of curly braces `{ }` containing a series of <KEY> = <VALUE> pairs.  For Maps, all of the values must be of the same Type.  The Keys are always of type String.
+Maps are represented by a pair of curly braces `{ }` containing a series of key/value pairs.  For Maps, all of the values must be of the same Type.  The Keys are always of type String.
 - `type = map(string)` This defines a Map where all the values are Strings
   ```terraform
   mapName = {
