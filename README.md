@@ -27,7 +27,7 @@ Part 3 - Terraform Code Blocks
 - [Local Values](README.md#local-values-aka-locals)
 - [Data Sources](README.md#data-sources)
 - [Resources](README.md#resources)
-- [Modules](README.md#child-modules-aka-modules)
+- [Child Modules](README.md#child-modules-aka-modules)
 - [Output Variables](README.md#output-variables-aka-outputs)
 
 Part 4 - Everything Else
