@@ -244,7 +244,7 @@ non-indented multi-line
 strings will go here
 EOT
 ```
-- `EOF` can be replaced with any word you choose
+- `EOT` can be replaced with any word you choose
 - If you use `<<` then the string will include any whitespace, so don't indent your lines unless you want those indents in your string
 - If you use `<<-` then Terraform will remove any leading spaces automatically, so the string can be indented however you like to maintain readability
 
