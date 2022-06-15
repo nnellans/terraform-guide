@@ -423,10 +423,10 @@ data "terraform_remote_state" "symbolicName" {
   - `data.external.symbolicName.result.someAttribute`
 
 ### Template File Data Source
-
+The file you provide is processed as a string.  A search and replace is perfomed on the string and the modified version of the string is returned
 ```terraform
 # defining a Template File Data Source
-data "template_file" "name" {
+data "template_file" "symbolicName" {
   template = file("somefile.txt")
 
   vars = {
@@ -436,9 +436,8 @@ data "template_file" "name" {
 }
 
 # using the rendered output from a Template File Data Source
-data.template_file.<dataSourceName>.rendered
+data.template_file.symbolicName.rendered
 ```
-- The file you provide is processed as a string.  Any time a matching variable key is found in the string, it is replaced with the variable value specified
 - The string must be formatted like this: `in this string ${key1} will be replaced and ${key2} will also be replaced`
 - `template` could also be just a simple string value or string variable that you want to modify
 
