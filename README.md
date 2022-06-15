@@ -211,15 +211,15 @@ var.exampleVarName
 - `type` can be a combination of different options:  `list(number)`
 
 ### How to set values for your Variables:
-1. You can set a `default` value inside the Variable definition
-2. Set an environment variable with the name of `TF_VAR_<varName>` and the value that you want to use
+- You can set a `default` value inside the Variable definition
+- Set an environment variable with the name of `TF_VAR_<varName>` and the value that you want to use
   - Linux: `export TF_VAR_varName=value`
   - PowerShell: `$env:TF_VAR_varName = 'value'`
-3. Using a file with a `.tfvars` extension that lists Variable names and their values
+- Using a file with a `.tfvars` extension that lists Variable names and their values
   - Option 1: Terraform CLI will automatically load your file if it is placed in your Root Module and it is named `terraform.tfvars` or `*.auto.tfvars`
   - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform.exe plan -var-file=somefile.tfvars`
-4. You can pass a value with the `-var` switch: `terraform plan -var "name=value"`
-5. If not set by any other method, then Terraform CLI will interactively prompt you for a value at runtime
+- You can pass a value with the `-var` switch: `terraform plan -var "name=value"`
+- If not set by any other method, then Terraform CLI will interactively prompt you for a value at runtime
 
 Values are loaded in the following order, with the later options taking precedence over earlier ones:
 - Environment Variables
