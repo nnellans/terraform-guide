@@ -1,5 +1,7 @@
 Warning: This is an advanced guide.  It is not very beginner friendly and it assumes you already know the basics of Terraform.  Think of this like an advanced cheat sheet.  I went through the HashiCorp documentation, as well as various books, and captured any notes that I felt were relevant or important.  Then, I organized them into the README file you see here.
 
+Terraform comes in a few different versions.  This guide covers Terraform "Open Source" only.  It does not cover topics for Terraform "Cloud" or Terraform "Enterprise".
+
 It's important to know that this is a live document.  Some of the sections are still a work in progress.  I will be continually updating it over time.
 
 If you are new to Terraform, then I would suggest first going through the [HashiCorp Docs](https://www.terraform.io/docs) or doing a couple [HashiCorp Learn](https://learn.hashicorp.com/) courses.
@@ -7,8 +9,6 @@ If you are new to Terraform, then I would suggest first going through the [Hashi
 ---
 
 # Table of Contents
-
-This guide goes over a lot of things, and I tried my best to organize them in a logical manner.
 
 Part 1 - Terraform Files, Folder Structure, and Common Code Blocks
 - [Configuration Files](README.md#configuration-files)
@@ -44,17 +44,17 @@ Part 4 - Everything Else
 ## Terraform Files, Folder Structure, and Common Code Blocks
 
 ### Configuration Files
-- Files that contain Terraform code are officially called "configuration files"
+- Files that contain Terraform code are officially called *configuration files*
 - Configuration Files can be written in two different formats:
   - the typical, native format which uses the `.tf` file extension
   - the alternate JSON format which uses the `.tf.json` file extension
 - This guide will focus strictly on the native format
 
 ### Root Module
-- When you run Terraform CLI commands such as `plan` or `apply` you run it against a directory of Configuration Files.  This directory could contain just a single Configuration File, or this directory could contain multiple Configuration Files
-- Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Note that using multiple Configuration Files can make it easier for code readers and code maintainers
+- When you run Terraform commands such as `plan` or `apply` you run it against a directory of Configuration Files.  This directory could contain one Configuration File, or it could contain many
+- Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Note that using multiple Configuration Files can make it easier for readers and maintainers of your code
 - Terraform will automatically evaluate ALL Configuration Files that it finds in the **top level** of the directory you run it against
-- This top-level directory is commonly referred to as the "Root Module"
+- This top-level directory is commonly referred to as the *Root Module*
 
 ### Typical Root Module Folder Structure
 - `main.tf`
@@ -65,8 +65,8 @@ Part 4 - Everything Else
   - Contains all of your `variable` blocks
 - `versions.tf`, `terraform.tf`, `provider.tf`
   - Recently, it has been common to put the `terraform` configuration block and all of your `provider` configuration blocks into separate Configuration Files
-  - Some of the common filenames that are used for this are `versions.tf`, `terraform.tf`, and `provider.tf`
-  - You may not always find these files.  If they don't exist, then these blocks are typically found at the top of `main.tf` instead
+  - Some of the common filenames that I've seen used for this are `versions.tf`, `terraform.tf`, or `provider.tf`
+  - You may not always find these files.  If they don't exist, then these blocks are typically found in `main.tf` instead
 
 ### terraform block
 ```terraform
@@ -93,13 +93,15 @@ terraform {
 
 }
 ```
-- This block supports hard-coded values only
-- The `required_version` parameter is used to specify which version(s) of Terraform are supported by this Root Module.  You can specify an exact version, a minimum version, maximum version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more information
-- The `required_providers` block declares which providers are used by this Root Module (and any Child Modules too), so that Terraform CLI can install these Providers and use them.  This is how you specify which version(s) of each Provider are supported by this Root Module
-  - The `configuration_aliases` parameter is used when you have multiple copies of the same Provider, you must list all of the extra aliases here
-- The `backend` block is used to configure which Backend the Terraform CLI will use
+- The `terraform` block supports hard-coded values only
+- `required_version` is used to specify which version(s) of Terraform are supported by this Root Module
+  - You can specify an exact version, a min version, a max version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more info
+- `required_providers` declares which providers are used by this Root Module (and any Child Modules too), so that Terraform can install and use these Providers.  This is how you specify which version(s) of each Provider are supported by this Root Module
+  - The `configuration_aliases` argument is used when you have multiple copies of the same Provider, you must list all of the extra aliases here
+- `backend` is used to configure which Backend the Terraform CLI will use
 - The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) docs for more info
-- The `terraform` block should exist in both the Root Module as well as any Child Modules.  However, in Child Modules if you want to provide version constraints for terraform or for providers, then you should specify minimum versions only.  Let the Root Module specify the max versions for both.
+- The `terraform` block should exist in both the Root Module as well as all Child Modules
+  - However, in Child Modules you should specify *minimum* versions only.  This goes for both the Terraform version and Provider versions.  Let the Root Module specify the *maximum* versions for both.
 
 ### provider Configuration Blocks
 ```terraform
@@ -113,6 +115,7 @@ provider "aws" {
 }
 
 provider "azurerm" {
+  # version = "1.0"   # DEPRECATED! DO NOT USE!
   features {}
 }
 
@@ -121,16 +124,16 @@ provider "google" {
   region  = "us-central1"
 }
 ```
-- Each Provider has its own unique settings that you must configure.  This may include things such as the credentials used to authenticate to the vendor's API, which region to use, which subscription to use, etc.
-  - Do not put sensitive credentials directly in the `provider` block.  Again, passwords stored directly in code are bad!
-  - Some Providers support alternate ways to provide these values, like using environment variables, and it is recommended to use these alternate methods
+- Each Provider has its own unique settings.  This may include things such as the credentials used to authenticate to the vendor's API, which region to use, which subscription to use, etc.
+  - Do not put sensitive credentials in the `provider` block.  Passwords stored directly in code are **bad**!
+  - Some Providers support alternate ways to provide these values, such as using environment variables.  It is recommended to use these alternate methods
   - Check out your Provider's documentation for more information
-- You may still see code that uses the `version` parameter inside of a `provider` block.  Do NOT use this, it's deprecated.  Instead, you should specify the supported Provider versions in the `terraform` block (see above)
-- You can declare multiple `provider` blocks for a single Provider, with each block using a different configuration.  See the 2 `aws` blocks in the example above
-  - The first instance you define is considered the "default" Provider and does not need to use the `alias` parameter
-  - Any other instances you define must have a unique `alias` parameter that will be used to reference this instance of the Provider
-  - Don't forget to include the extra aliases in the `terraform / required_providers` block (see above)
-- `provider` configuration blocks belong in the Root Module ONLY, they should not exist in Child Modules
+- You may still see code that uses the `version` argument inside of a `provider` block.  Do NOT use this, it's deprecated.  Instead, you should specify the supported Provider versions in the `terraform` block (see above)
+- You can declare multiple `provider` blocks for a single Provider, with each block using a different configuration.  See the two `aws` blocks in the example code above
+  - The first instance you define is considered the "*default* Provider and does not need to use the `alias` argument
+  - Any other instances you define must have a unique `alias` argument that will be used to reference this instance of the Provider
+  - Don't forget to also include the extra aliases in the `terraform / required_providers` block (see above)
+- `provider` configuration blocks go in the Root Module ONLY, they should not exist in Child Modules
 
 ---
 
@@ -145,13 +148,13 @@ provider "google" {
 - Make sure your State Files are stored in a secure location and accessible only by users or accounts who require access
 
 ### Local Backend
-- This is the default backend that Terraform CLI will use unless you specify a different backend
+- This is the default backend that Terraform will use unless you specify a different backend
 - This is just a file named `terraform.tfstate` that is automatically created in the Root Module
 - Problems with a Local Backend:
   - The State File is local to your computer and can not be shared by other teammates
   - You can only use 1 local State File
     - (Workspaces are an exception, but they are not recommended)
-- You can start with a Local Backend, and later you can change your code to use a Remote Backend instead. Terraform CLI will recognize the local State File and prompt you to copy it to the new Remote Backend
+- You can start with a Local Backend, and later you can change your code to use a Remote Backend. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
 
 ### Remote Backend
 - You can only configure 1 Remote Backend per Root Module
@@ -168,10 +171,10 @@ provider "google" {
 - Remote Backends require configuration parameters, which specify:
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
-- Read your Remote Backend's documentation for for more information
-- `backend` blocks can NOT use Terraform variables or references, they must use hardcoded values
-  - This is because Terraform CLI sets the Remote Backend as the very first step, even before it processes variables
-- I'm warning you one last time, do NOT put sensitive values directly in the `backend` block, passwords in code are bad!
+- Read your Remote Backend's documentation for for more info
+- `backend` blocks can NOT use Terraform variables or references, they must use hard-coded values
+  - This is because Terraform sets the Remote Backend as its very first step, even before it processes variables
+- Again, do NOT put sensitive values directly in the `backend` block.  Passwords in code are bad!
 - You can remove some or all of the key/value pairs from the `backend` block and provide them in other ways:
   - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
   - Option 2 is to use a separate file:  `terraform.exe -backend-config=backend.hcl`
@@ -181,13 +184,13 @@ provider "google" {
     - This is the preferred option, as credentials are kept out of your code
 
 ### Terraform Workspaces
-- Note: These are different from Terraform Cloud Workspaces
+- Note: These are different from Terraform "Cloud" Workspaces
 - If you create Workspaces, they each get their own State File.  However, all Workspaces will still share the same Backend
 - State Files for Workspaces are placed in a new subfolder called `env:` and each Workspace gets its own subfolder under that:
   - `<backend>\env:\workspace1\terraform.tfstate`
   - `<backend>\env:\workspace2\terraform.tfstate`
 - Switching Workspaces is equivalent to changing the path where your State File is stored
-- In general, these are confusing.  It can be easy to mix up Workspaces and forget which one you are currently working with
+- In general, these are confusing.  It can be easy to mix up Workspaces and forget which one you are currently working on
 - If possible, stay away from using these!
 
 ---
@@ -196,7 +199,7 @@ provider "google" {
 
 ```terraform
 # defining a variable
-# remember, this is typically done in a variables.tf file
+# remember, this is typically done inside a variables.tf file
 variable "exampleVarName" {
   description = "put a good description here"
   type        = string | number | bool | list | tuple | set | map | object | any
@@ -211,28 +214,28 @@ var.exampleVarName
 - `type` can be a combination of different options:  `list(number)`
 
 ### How to set values for your Variables:
-- You can set a `default` value inside the Variable definition
-- Set an environment variable with the name of `TF_VAR_<varName>` and the value that you want to use
-  - Linux: `export TF_VAR_varName=value`
-  - PowerShell: `$env:TF_VAR_varName = 'value'`
-- Using a file with a `.tfvars` extension that lists Variable names and their values
-  - Option 1: Terraform CLI will automatically load your file if it is placed in your Root Module and it is named `terraform.tfvars` or `*.auto.tfvars`
-  - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform.exe plan -var-file=somefile.tfvars`
-- You can pass a value with the `-var` switch: `terraform plan -var "name=value"`
-- If not set by any other method, then Terraform CLI will interactively prompt you for a value at runtime
+1. You can set a `default` value inside the Variable definition
+2. Set an environment variable with the name of `TF_VAR_<varName>` and the value that you want to use
+   - Linux: `export TF_VAR_varName=value`
+   - PowerShell: `$env:TF_VAR_varName = 'value'`
+3. Use a file with a `.tfvars` extension that lists Variable names and their values
+   - Option 1: Terraform will automatically load your file if it is placed in your Root Module and it is named `terraform.tfvars` or `*.auto.tfvars`
+   - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform.exe plan -var-file=somefile.tfvars`
+4. Pass a value with the `-var` switch: `terraform plan -var "name=value"`
+5. If not set by any other method, then Terraform will interactively prompt you for a value at runtime
 
 Values are loaded in the following order, with the later options taking precedence over earlier ones:
-- Environment Variables
-- `terraform.tfvars` files
-- `*.auto.tfvars` files
-- `-var` and `-var-file` commandline options, in the order they are given
+1. Environment Variables
+2. `terraform.tfvars` files
+3. `*.auto.tfvars` files
+4. `-var` and `-var-file` options, in the order they are given on the commandline
 
 # Variable Types
 
 ### Strings
 Represented by characters surrounded by double-quotes: `"this is a string"`
 
-Heredoc / multiline strings
+Heredoc / Multi-line Strings
 ```terraform
 user_data = <<-EOT
             indented multi-line
@@ -256,32 +259,35 @@ Lists are represented by a pair of square brackets `[ ]` containing a comma-sepa
   - This shorthand is not recommended any more.  Instead, use `list(any)`
   - When using `list` or `list(any)` the List values must still all be the same Type (string, number, etc.)
 - Setting the value of a List variable, two options:
-  - Put each value on its own line, separated by commas
-    ```terraform
-    listName = [
-      "first",
-      "second",
-      "third"
-    ]
-    ```
-  - Put all values on a single line, also separated by commas
-    ```terraform
-    listName = [ "first", "second", "third" ]
-    ```
-  - A comma after the last value is allowed, but not required
+  1. Put each value on its own line, separated by commas
+     ```terraform
+     listName = [
+       "first",
+       "second",
+       "third"
+     ]
+     ```
+  2. Put all values on a single line, also separated by commas
+     ```terraform
+     listName = [ "first", "second", "third" ]
+     ```
+- A comma after the last value is allowed, but not required
 - Using a specific value from the List:  `var.listName[3]`
 - Lists are zero-based, so the the first entry is always index 0:  `var.listName[0]`
 - Some example List Functions:
   - Find the number of items inside a list:  `length(var.listName)`
 
 ### Tuple Variables
-- This is the 'structural' version of the List type
-- It requires you to define a schema (within square brackets). This allows you to use different variable Types inside the Tuple
+- This is the *structural* version of the List type
+- You are allowed to use different variable Types inside the Tuple
+- It requires you to define a schema within Square Brackets:
   - `type = tuple( [schema] )`
   - Example: `type = tuple( [ string, number, bool ] )`
 
 ### Map Variables
-Maps are represented by a pair of curly braces `{ }` containing a series of key/value pairs.  For Maps, Keys are always strings, and Values must always be of the same Type
+Maps are represented by a pair of curly braces `{ }` containing a series of key/value pairs
+- Keys are always strings
+- Values must always be of the same Type
 - `type = map(string)` This defines a Map where all the values are Strings
   ```terraform
   mapName = {
@@ -306,30 +312,32 @@ Maps are represented by a pair of curly braces `{ }` containing a series of key/
 - `type = map`
   - This shorthand is not recommended any more.  Instead, use `map(any)`
   - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
-- Quotes may be omitted on the keys (unless the key starts with a number, in which case quotes are required)
+- Quotes may be omitted on the Keys (unless the key starts with a number, in which case quotes are required)
 - Setting the value of a Map variable, two options:
-  - Put each pair on its own line, separated by line breaks:
-    ```terraform
-    mapName = {
-      key1 = value1
-      key2 = value2
-    }
-    ```
-  - For a single line, you must use commas to separate each pair:
-    ```terraform
-    mapName = { key1 = value1, key2 = value2 }
-    ```
-- You can use either equal signs `key1 = value1` or colons `key1: value1`.  However, `terraform fmt` doesn't work on the colon style
+  1. Put each pair on its own line, separated by line breaks:
+     ```terraform
+     mapName = {
+       key1 = value1
+       key2 = value2
+     }
+     ```
+  2. For a single line, you must use commas to separate each pair:
+     ```terraform
+     mapName = { key1 = value1, key2 = value2 }
+     ```
+- You can use either equal signs `key1 = value1` or colons `key1: value1`
+  - However, `terraform fmt` does NOT work on the colon style
 - Using a specific value from the Map, two options:
-  - `var.mapName.key1`
-  - `var.mapName["1key"]`
-    - You must use this if the key begins with a number
+  1. `var.mapName.key1`
+  2. `var.mapName["1key"]`
+     - You must use this if the Key begins with a number
 - Some example Map Functions:
   - Return just the values from a Map:  `values(var.mapName)`
 
 ### Object Variables
 - This is the 'structural' version of a Map variable
-- It requires you to define a schema (within curly brackets).  This allows you to use different variable Types for the Values of the Object
+- You are allowed to use different variable Types for each Value of the Object
+- It requires you to define a schema within Curly Brackets
   - `type = object( {schema} )`
   - Example: `type = object( { name = string, age = number } )`
 
@@ -346,7 +354,7 @@ locals {
 local.second
 ```
 - Instead of embedding complex expressions directly into resource properties, use Locals to contain the expressions
-- This approach makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
+- This makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
 - You can have a single `locals` block where you define multiple Locals, or you can split them up into multiple `locals` blocks
 
 # Data Sources
@@ -363,12 +371,13 @@ data.azurerm_storage_account.someSymbolicName.<attribute>
 # Where `attribute` is specific to the resource that is being fetched by the data source
 # In this case it could be id, location, account_kind, etc.
 ```
-- Data Sources fetch up-to-date information from your providers (Azure, AWS, etc.) each time you run Terraform
-- Each provider has their own list of supported Data Sources
+- Data Sources fetch up-to-date information from your Providers (Azure, AWS, etc.) each time you run Terraform
+- Each Provider has their own list of supported Data Sources
 - Data Sources are Read-Only!
 - When defining a Data Source, the argument(s) that you specify can be thought of like search filters to limit what data is returned
 
-# Other types of Data Sources
+## Other types of Data Sources
+<details><summary>Click to expand</summary>
 
 ### Remote State Data Source
 - Use these when you want to pull info from a foreign Terraform State File
@@ -440,9 +449,11 @@ data.template_file.symbolicName.rendered
 ```
 - The string must be formatted like this: `in this string ${key1} will be replaced and ${key2} will also be replaced`
 - `template` could also be just a simple string value or string variable that you want to modify
+</details>
 
 # Resources
-- Resources are the most important element in the Terraform language.  Each `resource` block describes one or more infrastructure objects, such as virtual networks, compute instances, or higher-level components such as DNS records
+- Resources are the most important element in the Terraform language
+- Each `resource` block describes one or more infrastructure objects, such as virtual networks, compute instances, or higher-level components such as DNS records
 ```terraform
 # defining a resource from the azurerm provider
 resource "azurerm_storage_account" "someSymbolicName" {
@@ -450,9 +461,12 @@ resource "azurerm_storage_account" "someSymbolicName" {
   location = "someLocation
 }
 ```
-- In the example above, the resource type is `azurerm_storage_account` and if we look at the beginning of the resource type we can tell that it comes from the `azurerm` Provider.  Each Provider supports its own set of resource types.  Each Provider also defines the acceptable parameters to use for each resource type.  Check your Provider's documentation to learn more about the supported resource types and their supported parameters
-- Terraform also supports a number of 'Meta-Arguments' that are available to use for each `resource` block, such as `depends_on`, `count`, `for_each`, `provider`, `lifecycle`, and `provisioner`
-- Further below, this guide will go over the `count`, `for_each`, and `lifecycle` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/resources/syntax#meta-arguments) for more information
+- In this example, the resource type is `azurerm_storage_account` and if we look at the beginning of the resource type we can tell that it comes from the `azurerm` Provider.
+  - Each Provider supports its own set of resource types
+  - Each Provider also defines the acceptable parameters to use for each resource type
+  - Check your Provider's documentation to learn more about the supported resource types and their supported parameters
+- Terraform also supports a number of *Meta-Arguments* that are available to use for each `resource` block, such as `depends_on`, `count`, `for_each`, `provider`, `lifecycle`, and `provisioner`
+- This guide will go over the `count`, `for_each`, and `lifecycle` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/resources/syntax#meta-arguments) for more information
 
 # Child Modules (aka Modules)
 
@@ -475,16 +489,16 @@ module "someSymbolicName"  {
 module.someSymbolicName.<outputName>
 ```
 - The keys/value pairs are how you pass Input Variables to the Child Module
-- The Child Module defines what it accepts for Input Variables via its own `variables.tf` file in its own folder
+  - The Child Module defines what it accepts for Input Variables via its own `variables.tf` file in the Module's folder
 - Tip: The `source` attribute could point to a git repo if you wanted
   - That way you could use git tags to create “versions” of your module, and then you can reference specific versions of each module
-- Terraform also supports a number of 'Meta-Arguments' that are available to use for each `module` block, such as `depends_on`, `count`, `for_each`, and `providers`
-- Further below, this guide will go over the `count` and `for_each` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/modules/syntax#meta-arguments) for more information
+- Terraform also supports a number of *Meta-Arguments* that are available to use for each `module` block, such as `depends_on`, `count`, `for_each`, and `providers`
+- This guide will go over the `count` and `for_each` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/modules/syntax#meta-arguments) for more information
 
 ### Module Notes
-- Some Resource configuration can be provided as inline blocks inside parent Resource, or as totally separate top-level resources
+- Some Resource configuration can be provided as inline blocks inside a parent Resource, or it can be provided as totally separate top-level Resources
   - Take Subnets for an example.  Subnets could be defined as inline blocks on the Virtual Network resource, or Subnets could be defined as their own top-level resources
-  - Inside Modules, it is always preferred to use the separate top-level resources whenever possible
+  - When coding your Modules, it is always preferred to use the separate top-level resources whenever possible
 - Be careful when using the file() function inside of a Module, as the path to the file can get tricky.  Here are some special system variables that can help with this:
   - `path.module`:  references the folder where the child module is located
   - `path.root`:  references the folder of the root module
@@ -540,8 +554,8 @@ multi-line comment
     count = 5
   }
   ```
-- `count` must reference hard-coded values, variables, data sources, and lists.  It can NOT reference a value that needs to be computed
-- When you specify the `count` meta-argument on a resource, then you can use a new variable inside that resource:  `count.index`
+- `count` must reference hard-coded values, variables, data sources, or lists.  It can NOT reference a value that needs to be computed
+- When you specify the `count` meta-argument on a resource, you can use a new variable inside that resource:  `count.index`
   - `count.index` represents the number of the loop that you’re currently on
   - For example, say you had a resource with `count = 3`
     - The first resource will set `count.index = 0`
@@ -550,7 +564,7 @@ multi-line comment
   - You can use this on resource parameters that are required to be unique:  `name = "resource-group-${count.index}"`
   - You can get creative with this by building a separate List variable that contains the values you would like to use inside of the resource that is using `count`
     ```terraform
-    var.listOfNames = ["peter", "paul", "mary"]
+    var.listOfNames = ["will", "dustin", "eleven"]
     
     resource "azurerm_storage_account" "someSymbolicName" {
       count = length(var.listOfNames)
@@ -574,7 +588,7 @@ multi-line comment
     }
   }
   ```
-  - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` meta-argument inside the inline-block.  However, that is NOT supported
+  - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` meta-argument on the inline-block.  However, that is NOT supported
 
 ### Issue 2:  Deleting a resource from the middle of a List is tricky
 - For example, say you used `count = 4` to create some users:
@@ -587,7 +601,7 @@ multi-line comment
   - `user[1] = jean-claude`
   - `user[2] = chuck`
   - This is a problem because terraform will need to delete the original `jean-claude[2]` and then create a new `jean-claude[1]`.  It will also have to delete the original `chuck[3]` and then create a new `chuck[2]`
-- **If you remove an item from the middle of the List, terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
+- **If you remove an item from the middle of the List, Terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
 
 ### for_each Meta-Argument
 - Every Terraform `resource` or `module` block supports a meta-argument called `for_each`
@@ -598,15 +612,15 @@ multi-line comment
   ```
 - So, if your var.Set or var.Map has 5 entries, then you'll get 5 different copies of that Resource
 - List variables are NOT supported in Resource Block `for_each`.  But, you can convert a List variable to a Set variable:  `for_each = toset(var.List)`
-- `for_each` must reference hardcoded values, variables, data sources, and lists.  It can NOT reference a value that needs to be computed
-- When you specify the `for_each` meta-argument on a resource, then you can use new variables inside that resource:  `each.key` and `each.value`
+- `for_each` must reference hardcoded values, variables, data sources, or lists.  It can NOT reference a value that needs to be computed
+- When you specify the `for_each` meta-argument on a resource, you can use new variables inside that resource:  `each.key` and `each.value`
   - For a Set variable:
     - `each.key` and `each.value` are both set to the current item in the Set
     - Typically, you would just use `each.value`
   - For a Map variable:
     - `each.key` = the key of the current item in the Map
     - `each.value` = the value of the current item in the Map
-- When you use `for_each` on a resource, the resource now becomes a Map
+- Important: When you use `for_each` on a resource, the resource now becomes a Map
   - To reference a single instance of the resource created by for_each:  `azurerm_storage.someName[key]`
 
 ### Benefit 1:  Deleting from the middle is no problem
@@ -628,9 +642,8 @@ resource "someResource" "someName" {
 }
 ```
 - So, if your Collection/Structural var has 5 entries, then you'll get 5 different copies of that Inline Block
-- `for_each` supports many types of variables, specifically Lists, Sets, Maps, Tuples, and Objects
-
-- When you specify the `for_each` parameter on an inline block, then you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
+- `dynamic` block `for_each` supports many types of variables, specifically Lists, Sets, Maps, Tuples, and Objects
+- When you specify the `for_each` parameter on a `dynamic` block, you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
   - For a Set variable:
     - `<inlineBlockToDuplication>.key` and `<inlineBlockToDuplication>.value` are both set to the current item in the Set
     - Typically, you would just use `<inlineBlockToDuplicate>.value`
@@ -684,7 +697,7 @@ resource "someResource" "someName" {
 # Template Directives
 (WIP)
 
-Template Directives are supported on quoted Strings and Heredoc Strings.  It is recommended to only use them with Heredoc Strings so that you can use multiple lines for better readability
+Template Directives are supported on regular Strings and Heredoc/Multi-line Strings.  It is recommended to only use them with Heredoc Strings so that you can use multiple lines for better readability
 
 - This let’s you loop over a List variable or a Map variable
   ```terraform
@@ -725,7 +738,7 @@ Template Directives are supported on quoted Strings and Heredoc Strings.  It is 
 
 # Lifecycle Settings Meta-Argument
 - Every terraform resource supports a `lifecycle` Meta-Argument block
-- It can configure how that resource is created, updated, or deleted.
+- It can configure how that resource is created, updated, or deleted
 ```terraform
 resource "azurerm_some_resource" "someName" {
   key = value
@@ -746,8 +759,6 @@ resource "azurerm_some_resource" "someName" {
 - `ignore_changes`
   - This is a list of resource attributes that you want Terraform to ignore.  If the value of that attribute differs in real life vs. the Terraform code, then Terraform will just ignore it and not try to make any changes
 
-
-
 # terraform CLI Commands
 (WIP)
 - `terraform apply`
@@ -756,7 +767,7 @@ resource "azurerm_some_resource" "someName" {
   - Interactive, read-only console to try out built-in functions, query the state of your infrastructure, etc.
 - `terraform destroy`
   - Deletes all resources
-  - There is no "undo" be very careful!
+  - There is no "undo" so be very careful!
 - `terraform fmt`
   - work in progress
 - `terraform graph`
@@ -766,7 +777,7 @@ resource "azurerm_some_resource" "someName" {
 - `terraform import`
   - work in progress
 - `terraform init`
-  - Downloads any Providers that are found in your code, they are put here:  `<currentDirectory>\.terraform\`
+  - Downloads any Providers that are found in your code, and puts them here:  `<currentDirectory>\.terraform\`
   - You must run `init` each time you change settings for your Remote Backend
   - You must run `init` each time you reference a new Module, or change Module settings
 - `terraform output`
