@@ -222,12 +222,24 @@ variable "exampleVarName" {
   description = "put a good description here"
   type        = string | number | bool | list | tuple | set | map | object | any
   default     = set a default value here
+  sensitive   = true   # supported in Terraform 0.14.0 and later
+  nullable    = false  # supported in Terraform 1.1.0 and later
+  
+  # supported in Terraform 0.13.0 and later
+  # you can have multiple validation blocks
+  validation {
+    # some condition that must resolve to either true or false
+    # the condition can reference this variable and this variable only
+    condition     = var.exampleVarName > 10
+    # an error message to show if the condition is false
+    error_message = "your value needs to be greater than 10"
+  }
 }
 
 # use a variable by prefixing the variable's name with var.
 var.exampleVarName
 ```
-- When defining a Variable, all three parameters are optional
+- When defining a Variable, all parameters are optional
   - If `type` is omitted, then the default is `any`
 - `type` can be a combination of different options:  `list(number)`
 
@@ -740,12 +752,33 @@ Template Directives are supported on regular Strings and Heredoc/Multi-line Stri
 - It can configure how that resource is created, updated, or deleted
 ```terraform
 resource "azurerm_some_resource" "someName" {
-  key = value
+  somekey = somevalue
 
   lifecycle {
     create_before_destroy = true
     prevent_destroy       = true
     ignore_changes        = [ attribute1, attribute2 ]
+    
+    # precondition & postcondition are supported in Terraform 1.2.0 and later
+    # precondition & postcondition are supported only on `resource`, `data`, and `output` blocks
+
+    # runs before the terraform apply
+    precondition {
+      # some condition that must resolve to either true or false
+      # the condition can reference anything (even outside this resource)
+      condition     = var.someVar < 3
+      # an error message to show if the condition is false
+      error_message = "There is a problem, variable someVar is greater than 3"
+    }
+    
+    # runs after the terraform apply
+    postcondition {
+      # some condition that must resolve to either true or false
+      # postcondition can reference itself by using the 'self' keyword
+      condition     = length(self.zones) > 5
+      # an error message to show if the condition is false
+      error_message = "Something is wrong, zones must be greater than 5"
+    }
   }
 }
 ```
@@ -772,7 +805,7 @@ resource "azurerm_some_resource" "someName" {
 - `terraform graph`
   - Shows you the dependency graph for the resources
   - It outputs into a graph description language called DOT
-  - You can use Graphviz or GraphvizOnline to convert into an image
+  - You can use tools like Graphviz or GraphvizOnline to convert into an image
 - `terraform import`
   - work in progress
 - `terraform init`
