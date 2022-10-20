@@ -142,16 +142,16 @@ provider "google" {
 
 ### terraform init
 You must run `terraform init` at least once before you can run any `plan` or `apply` commands.  The `terraform init` command is a powerful command that has 3 different purposes:
-1. Configures your Providers
+- Configures your Providers
   - It looks at your Configuration Files, figures out which Providers your code uses, and then automatically downloads those Providers into the `.terraform` folder
   - It will automatically create a lock file named `.terraform.lock.hcl`
     - The lock file stores the exact versions of the Providers that were downloaded by `init`
     - You should store this file in version control along with your code.  This way everyone will use the same lock file and as a result everyone will download the same Provider versions
     - How do you upgrade to a new Provider version?  First, upgrade the Provider version in the `terraform.required_providers` block and then run `terraform init -upgrade`.  This will download the new Provider and it will automatically update the `.terraform.lock.hcl` file as well
   - Any time you add a new Provider to your code you will need to run `terraform init` again in order to download that Provider
-2. Initializes your chosen Backend
+- Initializes your chosen Backend
   - Any time you change to a different Backend you will need to run `terraform init` again in order to initialize the new Backend
-3. Configures your Modules
+- Configures your Modules
   - Any time you add a Module to your Configuration Files, or you change the source of an existing Module, you will need to run `terraform init` again
 
 ---
