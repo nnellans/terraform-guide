@@ -75,6 +75,7 @@ Part 4 - Everything Else
 
 ### terraform block
 ```terraform
+# ROOT MODULE ONLY
 terraform {
 
   required_version = "=1.2.0"
@@ -87,7 +88,6 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "=4.18.0"
-      configuration_aliases = [ aws.second ]
     }
   }
 
@@ -97,19 +97,42 @@ terraform {
   }
 
 }
+
+# CHILD MODULE ONLY
+terraform {
+
+  required_version = ">= 1.0.0"  # only specify minimum in child modules
+  
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">=2.0.0"  # only specify minimum in child modules
+      configuration_aliases = [ aws.first, aws.second ]
+    }
+  }
+  
+  # no backend configurations in child modules
+
+}
 ```
 - The `terraform` block supports hard-coded values only
-- `required_version` is used to specify which version(s) of Terraform are supported by this Root Module
-  - You can specify an exact version, a min version, a max version, or even a range of versions.  See the [Version Constraints](https://www.terraform.io/language/expressions/version-constraints) documentation for more info
-- `required_providers` declares which providers are used by this Root Module (plus any Child Modules too), so that Terraform can install and use these Providers.  This is how you specify which version(s) of each Provider are supported by this Root Module
-  - The `configuration_aliases` argument is used when you have multiple copies of the same Provider, you must list all of the extra aliases here
+- `required_version` is used to specify which version(s) of Terraform are supported by this module
+  - You can specify an exact version, a min version, a max version, or even a range of versions.  See the [Version Constraints](https://developer.hashicorp.com/terraform/language/expressions/version-constraints) documentation for more info
+  - In Child Modules, you should only specify a minimum version.  Let the Root Module specify the maximum version
+- `required_providers` declares which providers are used by this module, so that Terraform can install and use these Providers
+  - In Root Modules:
+    - You should include all Providers being used by the Root Module plus any Child Modules being called
+  - In Child Modules:
+    - You only need to include Providers being used by that Child Module
+    - You should only specify a minimum version.  Let the Root Module specify the maximum version
+    - If your Child Module uses multiple copies of the same Provider, then specify the `configuration_aliases` argument, this specifies the exact Providers and their Aliases that must be passed to this Child Module when calling it
 - `backend` is used to configure which Backend the Terraform CLI will use
+  - This block only belongs in Root Modules
 - The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) docs for more info
-- The `terraform` block should exist in both the Root Module as well as all Child Modules
-  - However, in Child Modules you should specify *minimum* versions only.  This goes for both the Terraform version and Provider versions.  Let the Root Module specify the *maximum* versions for both.
 
 ### provider Configuration Blocks
 ```terraform
+# ROOT MODULE ONLY
 provider "aws" {
   region = "us-east-1"
 }
@@ -138,21 +161,25 @@ provider "google" {
   - The first instance you define is considered the "*default* Provider and does not need to use the `alias` argument
   - Any other instances you define must have a unique `alias` argument that will be used to reference this instance of the Provider
   - Don't forget to also include the extra aliases in the `terraform / required_providers` block (see above)
-- `provider` configuration blocks go in the Root Module ONLY, they should not exist in Child Modules
+- `provider` configuration blocks go in the Root Module ONLY, they should NOT exist in Child Modules
+  - Child Modules recieve their provider configurations from the Root Module
 
 ### terraform init
 You must run `terraform init` at least once before you can run any `plan` or `apply` commands.  The `terraform init` command is a powerful command that has 3 different purposes:
-- Configures your Providers
-  - It looks at your Configuration Files, figures out which Providers your code uses, and then automatically downloads those Providers into the `.terraform` folder
-  - It will automatically create a lock file named `.terraform.lock.hcl`
-    - The lock file stores the exact versions of the Providers that were downloaded by `init`
-    - You should store this file in version control along with your code.  This way everyone will use the same lock file and as a result everyone will download the same Provider versions
-    - How do you upgrade to a new Provider version?  First, upgrade the Provider version in the `terraform.required_providers` block and then run `terraform init -upgrade`.  This will download the new Provider and it will automatically update the `.terraform.lock.hcl` file as well
-  - Any time you add a new Provider to your code you will need to run `terraform init` again in order to download that Provider
-- Initializes your chosen Backend
-  - Any time you change to a different Backend you will need to run `terraform init` again in order to initialize the new Backend
-- Configures your Modules
-  - Any time you add a Module to your Configuration Files, or you change the source of an existing Module, you will need to run `terraform init` again
+
+1 - Configures your Providers
+- It looks at your Configuration Files, figures out which Providers your code uses, and then automatically downloads those Providers into the `.terraform` folder
+- It will automatically create a lock file named `.terraform.lock.hcl`
+  - The lock file stores the exact versions of the Providers that were downloaded by `init`
+  - You should store this file in version control along with your code.  This way everyone will use the same lock file and as a result everyone will download the same Provider versions
+  - How do you upgrade to a new Provider version?  First, upgrade the Provider version in the `terraform.required_providers` block and then run `terraform init -upgrade`.  This will download the new Provider and it will automatically update the `.terraform.lock.hcl` file as well
+- Any time you add a new Provider to your code you will need to run `terraform init` again in order to download that Provider
+
+2 - Initializes your chosen Backend
+- Any time you change to a different Backend you will need to run `terraform init` again in order to initialize the new Backend
+
+3 - Configures your Modules
+- Any time you add a Module to your Configuration Files, or you change the source of an existing Module, you will need to run `terraform init` again
 
 ---
 
@@ -226,12 +253,8 @@ variable "exampleVarName" {
   nullable    = false  # supported in Terraform 1.1.0 and later
   
   # supported in Terraform 0.13.0 and later
-  # you can have multiple validation blocks
   validation {
-    # some condition that must resolve to either true or false
-    # the condition can reference this variable and this variable only
     condition     = var.exampleVarName > 10
-    # an error message to show if the condition is false
     error_message = "your value needs to be greater than 10"
   }
 }
@@ -241,7 +264,15 @@ var.exampleVarName
 ```
 - When defining a Variable, all parameters are optional
   - If `type` is omitted, then the default is `any`
+  - If `sensitive` is omitted, then the default is `false`
+  - If `nullable` is omitted, then the default is `true`
 - `type` can be a combination of different options:  `list(number)`
+- `sensitive = true` prevents showing the value in any `plan` or `apply` commands
+- `nullable = false` ensures the value can never be set to `null`
+- `validation` blocks
+  - You can have multiple `validation` blocks pers variable
+  - `condition` is any condition that resolves to true or false. You can only test against this particular variable and nothing else
+  - `error_message` is a message that is displayed if the condition is false
 
 ### How to set values for your Variables:
 1. You can set a `default` value inside the Variable definition
@@ -393,11 +424,16 @@ local.second
 data "azurerm_storage_account" "someSymbolicName" {
   name                = "name"
   resource_group_name = "rgName"
+  
+  # supported in Terraform 1.2.0 and later
+  lifecycle {
+    precondition {}
+    postcondition {}
+  }
 }
 
 # use a data source
 data.azurerm_storage_account.someSymbolicName.<attribute>
-
 # Where `attribute` is specific to the resource that is being fetched by the data source
 # In this case it could be id, location, account_kind, etc.
 ```
@@ -405,6 +441,7 @@ data.azurerm_storage_account.someSymbolicName.<attribute>
   - Each Provider has their own list of Data Sources that they support
 - All Data Sources are Read-Only!
 - When defining a Data Source, the argument(s) that you specify can be thought of like search filters to limit what data is returned
+- Data Sources support `precondition` and `postcondition` blocks as well (WIP)
 
 ## Other types of Data Sources
 <details><summary>Click to expand</summary>
@@ -586,7 +623,7 @@ multi-line comment
   - To reference a single instance of the resource created by count:  `azurerm_storage_account.someSymbolicName[2]`
   - To reference all instances of the resource created by count:  `azurerm_storage_account.someSymbolicName[*]` (this is called a "splat expression")
 
-### Issue 1:  The `count` meta-argument is not supported on inline blocks
+#### Drawback 1:  The `count` meta-argument is not supported on inline blocks
 - For example, take this resource:
   ```terraform
   resource "someResource" "someName" {
@@ -601,7 +638,7 @@ multi-line comment
   ```
   - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` meta-argument on the inline-block.  However, that is NOT supported
 
-### Issue 2:  Deleting a resource from the middle of a List is tricky
+#### Drawback 2:  Deleting a resource from the middle of a List is tricky
 - For example, say you used `count = 4` to create some users:
   - `user[0] = arnold`
   - `user[1] = sylvester`
@@ -634,10 +671,10 @@ multi-line comment
 - Important: When you use `for_each` on a resource, the resource now becomes a Map
   - To reference a single instance of the resource created by for_each:  `azurerm_storage.someName[key]`
 
-### Benefit 1:  Deleting from the middle is no problem
+#### Benefit 1:  Deleting from the middle is no problem
 - Since the resource is now considered a Map, deleting from the middle will no longer affect items further down the chain
 
-### Benefit 2:  for_each is supported on inline blocks, by using a dynamic block
+#### Benefit 2:  for_each is supported on inline blocks, by using a dynamic block
 ```terraform
 resource "someResource" "someName" {
   key = value
@@ -838,8 +875,18 @@ resource "azurerm_some_resource" "someName" {
 ---
 
 # References
-- [Terraform Up and Running](https://www.terraformupandrunning.com/)
-- [Terraform Settings](https://www.terraform.io/language/settings)
-- [Provider Requirements](https://www.terraform.io/language/providers/requirements)
-- [Version Constraints](https://www.terraform.io/language/expressions/version-constraints)
-- [Type Constraints](https://www.terraform.io/language/expressions/type-constraints)
+- Book - [Terraform Up and Running](https://www.terraformupandrunning.com/)
+- HashiCorp - [Terraform Settings](https://developer.hashicorp.com/terraform/language/settings)
+- HashiCorp - [Backend Configuration](https://developer.hashicorp.com/terraform/language/settings/backends/configuration)
+- HashiCorp - [Provider Requirements](https://developer.hashicorp.com/terraform/language/providers/requirements)
+- HashiCorp - [Provider Configuration](https://developer.hashicorp.com/terraform/language/providers/configuration)
+- HashiCorp - [Providers within Modules](https://developer.hashicorp.com/terraform/language/modules/develop/providers)
+- HashiCorp - [Version Constraints](https://developer.hashicorp.com/terraform/language/expressions/version-constraints)
+- HashiCorp - [Input Variables](https://developer.hashicorp.com/terraform/language/values/variables)
+- HashiCorp - [Types and Values](https://developer.hashicorp.com/terraform/language/expressions/types)
+- HashiCorp - [Type Constraints](https://developer.hashicorp.com/terraform/language/expressions/type-constraints)
+- HashiCorp - [Local Values](https://developer.hashicorp.com/terraform/language/values/locals)
+- HashiCorp - [Modules](https://developer.hashicorp.com/terraform/language/modules)
+- HashiCorp - [Module Blocks](https://developer.hashicorp.com/terraform/language/modules/syntax)
+- HashiCorp - [Module Sources](https://developer.hashicorp.com/terraform/language/modules/sources)
+- HashiCorp - [Output Values](https://developer.hashicorp.com/terraform/language/values/outputs)
