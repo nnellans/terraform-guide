@@ -158,9 +158,8 @@ provider "google" {
   - Check out your Provider's documentation for more information
 - You may still see code that uses the `version` argument inside of a `provider` block.  Do NOT use this, it's deprecated.  Instead, you should specify the supported Provider versions in the `terraform` block (see above)
 - You can declare multiple `provider` blocks for a single Provider, with each block using a different configuration.  See the two `aws` blocks in the example code above
-  - The first instance you define is considered the "*default* Provider and does not need to use the `alias` argument
+  - The first instance you define is considered the *default* Provider and does not need to use the `alias` argument
   - Any other instances you define must have a unique `alias` argument that will be used to reference this instance of the Provider
-  - Don't forget to also include the extra aliases in the `terraform / required_providers` block (see above)
 - `provider` configuration blocks go in the Root Module ONLY, they should NOT exist in Child Modules
   - Child Modules recieve their provider configurations from the Root Module
 
