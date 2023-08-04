@@ -1,10 +1,13 @@
 # Terraform Guide
 
-**Warning**: This is an advanced guide and assumes you already know the basics of Terraform.  Think of this more like an advanced cheat sheet.  I went through various sources, captured any notes that I felt were important, and organized them into the README file you see here.  If you are new to Terraform, then I would suggest first going through the [HashiCorp Docs](https://www.terraform.io/docs) or doing a couple [HashiCorp Learn](https://learn.hashicorp.com/) courses.
+> [!WARNING]
+> This is an advanced guide and assumes you already know the basics of Terraform.  Think of this more like an advanced cheat sheet.  I went through various sources, captured any notes that I felt were important, and organized them into the README file you see here.  If you are new to Terraform, then I would suggest first going through the [HashiCorp Docs](https://www.terraform.io/docs) or doing a couple [HashiCorp Learn](https://learn.hashicorp.com/) courses.
 
-Terraform comes in a few different versions.  This guide covers Terraform "*Open Source*" only.  It doesn't cover Terraform "*Cloud*" or Terraform "*Enterprise*".
+> [!NOTE]
+> Terraform comes in a few different versions.  This guide covers Terraform "*Open Source*" only.  It doesn't cover Terraform "*Cloud*" or Terraform "*Enterprise*".
 
-It's important to know that this is a live document.  Some of the sections are still a work in progress.  I will be continually updating it over time.
+> [!IMPORTANT]
+This is a live document.  Some of the sections are still a work in progress.  I will be continually updating it over time.
 
 ---
 
