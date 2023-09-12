@@ -657,10 +657,10 @@ multi-line comment
 - Every Terraform `resource` or `module` block supports a meta-argument called `for_each`
   ```terraform
   resource "azurerm_storage_account" "someSymbolicName" {
-    for_each = var.Set or var.Map
+    for_each = var.Set(string) or var.Map
   }
   ```
-- So, if your var.Set or var.Map has 5 entries, then you'll get 5 different copies of that Resource
+- So, if your var.Set(string) or var.Map has 5 entries, then you'll get 5 different copies of that Resource
 - List variables are NOT supported in Resource Block `for_each`.  But, you can convert a List variable to a Set variable:  `for_each = toset(var.List)`
 - `for_each` must reference hardcoded values, variables, data sources, or lists.  It can NOT reference a value that needs to be computed
 - When you specify the `for_each` meta-argument on a resource, you can use new variables inside that resource:  `each.key` and `each.value`
