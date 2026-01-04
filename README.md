@@ -9,7 +9,7 @@
     - https://github.com/nnellans/terraform-guide
 
 > [!WARNING]
-> This is an advanced guide and assumes you already know the basics of Terraform.  Think of this more like an advanced cheat sheet.  I went through various sources, captured any notes that I felt were important, and organized them into the README file you see here.  If you are new to Terraform, then I would suggest first going through the [HashiCorp Docs](https://developer.hashicorp.com/terraform/docs) or going through a couple [HashiCorp Tutorials](https://developer.hashicorp.com/tutorials).
+> This is an advanced guide and assumes you already know the basics of Terraform.  Think of this more like an advanced cheat sheet.  I went through various sources, captured any notes that I felt were important, and organized them into the README file you see here.  If you are new to Terraform, then I would suggest first going through the [HashiCorp Docs](https://developer.hashicorp.com/terraform/docs) or going through a couple [HashiCorp Tutorials](https://developer.hashicorp.com/tutorials/library?product=terraform).
 
 > [!NOTE]
 > Terraform comes in a few different versions.  This guide covers the free Terraform CLI version only.  It doesn't cover Terraform "*Cloud*" or Terraform "*Enterprise*".
