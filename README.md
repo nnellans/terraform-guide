@@ -57,14 +57,14 @@ This is a live document.  Some of the sections are still a work in progress.  I 
 ## Configuration Files
 
 - Files that contain Terraform code are officially called *configuration files*
-- Configuration Files can be written in two different formats:
+- They can be written in 2 different formats:
   - native format which uses the `.tf` file extension
   - alternate JSON format which uses the `.tf.json` file extension
 - This guide will only focus on the native format
 
 ## Root Module
 
-- When you run Terraform commands such as `terraform plan` or `terraform apply` you run it against a directory of Configuration Files
+- When you run Terraform commands (like `terraform plan`) they run against a directory of Configuration Files
   - This directory could contain one Configuration File, or it could contain many
 - Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide
   - Using multiple Configuration Files can make it easier for readers and maintainers of your code
@@ -74,18 +74,18 @@ This is a live document.  Some of the sections are still a work in progress.  I 
 ## Typical Root Module Folder Structure
 
 - `main.tf`
-  - Contains all of your `locals` blocks, `resource` blocks, `module` blocks, `data` blocks
+  - Contains all of your `resource` blocks, `module` blocks, `data` blocks, `locals` blocks
 - `outputs.tf`
   - Contains all of your `output` blocks
 - `variables.tf`
   - Contains all of your `variable` blocks
 - `versions.tf`, `terraform.tf`, `providers.tf`
-  - Recently, it has been common to put the `terraform` configuration block and all of your `provider` configuration blocks into separate Configuration Files
+  - Recently, it has been common to put the `terraform` block and `provider` blocks into separate Configuration Files
   - Some of the common filenames that I've seen used for this are `versions.tf`, `terraform.tf`, or `providers.tf`
-  - You may not always find these files.  If they don't exist, then these blocks are typically found in `main.tf` instead
+  - You may not always find these files, it all depends on how the author decided to organize their code
 - `dependencies.tf`
-  - Another fairly recent practice is to put all of your `data` blocks (data sources) into this separate Configuration File
-  - Same as above, you may not always find this file, and if not, the `data` blocks are typically found in `main.tf` instead
+  - Another fairly recent practice is to put all of your `data` blocks into this separate Configuration File
+  - Same as above, you may not always find this file
 
 ## terraform block
 
@@ -169,11 +169,11 @@ provider "google" {
 }
 ```
 
-- Each Provider has its own unique settings.  This may include settings such as the credentials used to authenticate to the vendor's API, which region to use, which subscription to use, etc.
-  - Do not put sensitive credentials in the `provider` block, as storing passwords directly in code is a **bad** idea!
+- Each Provider has its own unique settings.  This may include settings such as credentials, which region to use, which subscription to use, etc.
+  - Do NOT put sensitive credentials in the `provider` block, as storing passwords directly in code is a **bad** idea!
   - Some Providers support alternate ways to provide these values, such as using environment variables.  It is recommended to use these alternate methods
   - Check out your Provider's documentation for more information
-- You may still see code that uses the `version` argument inside of a `provider` block.  Do NOT use this, it's deprecated.  Instead, you should specify the supported Provider versions in the `terraform` block (see above)
+- You may still see code that uses the `version` argument inside of a `provider` block.  Do NOT do this, it's deprecated.  Instead, you should specify the supported Provider versions in the `terraform` block (see above)
 - You can declare multiple `provider` blocks for a single Provider, with each block using a different configuration.  See the two `aws` blocks in the example code above
   - The first instance you define is considered the *default* Provider and does not need to use the `alias` argument
   - Any other instances you define must have a unique `alias` argument that will be used to reference this instance of the Provider
@@ -234,19 +234,19 @@ terraform {
 }
 ```
 
-- Remote Backends require configuration parameters, which specify:
+- Remote Backends require configuration, like:
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
 - Read your Remote Backend's documentation for more info
 - `backend` blocks can NOT use Terraform variables or references, they must use hard-coded values
   - This is because Terraform sets the Remote Backend as its very first step, even before it processes variables
-- Do NOT put sensitive values directly in the `backend` block.  Again, passwords in code are bad!
+- Do NOT put sensitive values directly in the `backend` block.  Again, passwords stored in code are bad!
 - You can remove some or all of the key/value pairs from the `backend` block and provide them in other ways:
   - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
   - Option 2 is to use a separate file:  `terraform.exe -backend-config=backend.hcl`
     - Where `backend.hcl` is a file which contains only the key/value pairs that are needed by the backend
     - If this file contains sensitive values, then do NOT check it into version control
-  - Option 3 is using environment variables supported by your Backend.  Each Backend supports its own special environment variables.  Check your Backend's documentation for more information
+  - Option 3 is to use environment variables supported by your Backend.  Each Backend supports its own specially named environment variables.  Check your Backend's documentation for more information
     - If your Backend supports it, then this is the preferred option, as credentials are kept out of your code
 
 ## Terraform Workspaces
