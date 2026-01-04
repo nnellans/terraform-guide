@@ -257,11 +257,11 @@ terraform {
 # defining a variable
 # remember, this is typically done inside a variables.tf file
 variable "exampleVarName" {
-  description = "put a good description here"
-  type        = string | number | bool | list | tuple | set | map | object | any
-  default     = set a default value here
-  sensitive   = true   # supported in Terraform 0.14.0 and later
-  nullable    = false  # supported in Terraform 1.1.0 and later
+  description = "put a good description here"  # optional
+  type        = string | number | bool | list | tuple | set | map | object | any  # optional, default: any
+  default     = set a default value here  # optional
+  sensitive   = true   # supported in Terraform 0.14.0 and later  # optional, default: false
+  nullable    = false  # supported in Terraform 1.1.0 and later  # optional, default: true
   
   # supported in Terraform 0.13.0 and later
   validation {
@@ -274,15 +274,11 @@ variable "exampleVarName" {
 var.exampleVarName
 ```
 
-- When defining a Variable, all parameters are optional
-  - If `type` is omitted, then the default is `any`
-  - If `sensitive` is omitted, then the default is `false`
-  - If `nullable` is omitted, then the default is `true`
 - `type` can be a combination of different options:  `list(number)`
 - `sensitive = true` prevents showing the value in any `plan` or `apply` commands
 - `nullable = false` ensures the value can never be set to `null`
 - `validation` blocks
-  - You can have multiple `validation` blocks pers variable
+  - You can one or more `validation` blocks pers variable
   - `condition` is any condition that resolves to true or false. You can only test against this particular variable and nothing else
   - `error_message` is a message that is displayed if the condition is false
 
@@ -292,24 +288,27 @@ var.exampleVarName
    - Linux: `export TF_VAR_varName=value`
    - PowerShell: `$env:TF_VAR_varName = 'value'`
 3. Use a file with a `.tfvars` extension that lists Variable names and their values
-   - Option 1: Terraform will automatically load your file if it is placed in your Root Module and it is named `terraform.tfvars` or `*.auto.tfvars`
+   - Option 1: Terraform will automatically load your file if it is placed in your Root Module and it is named `terraform.tfvars` or `<anything>.auto.tfvars`
    - Option 2: Pass your tfvars file with the `-var-file` switch: `terraform.exe plan -var-file=somefile.tfvars`
-4. Pass a value with the `-var` switch: `terraform plan -var "name=value"`
+4. Pass a single value with the `-var` switch: `terraform plan -var "name=value"`
 5. If not set by any other method, then Terraform will interactively prompt you for a value at runtime
 
 Values are loaded in the following order, with the later options taking precedence over earlier ones:
 1. Environment Variables
 2. `terraform.tfvars` files
-3. `*.auto.tfvars` files
+3. `<anything>.auto.tfvars` files
 4. `-var` and `-var-file` options, in the order they are given on the commandline
 
 # Variable Types
 
 ### Strings
-Represented by characters surrounded by double-quotes: `"this is a string"`
+Set the value of a String variable:
 
-Heredoc / Multi-line Strings
 ```terraform
+# Single-line String
+stringName = "this is a string"
+
+# Heredoc / Multi-line Strings
 user_data = <<-EOT
             indented multi-line
             strings will go here
@@ -320,101 +319,98 @@ non-indented multi-line
 strings will go here
 EOT
 ```
+
 - `EOT` can be replaced with any word you choose
 - If you use `<<` then the string will include any whitespace, so don't indent your lines unless you want those indents in your string
 - If you use `<<-` then Terraform will remove any leading spaces automatically, so the string can be indented however you like to maintain readability
 
 ### List Variables
-Lists are represented by a pair of square brackets `[ ]` containing a comma-separated sequence of values.  For Lists, all the values must be of the same Type
+Defining a List variable:
 - `type = list(string)` This defines a List of all Strings
 - `type = list(number)` This defines a List of all Numbers
 - `type = list`
   - This shorthand is not recommended any more.  Instead, use `list(any)`
   - When using `list` or `list(any)` the List values must still all be the same Type (string, number, etc.)
-- Setting the value of a List variable, two options:
-  1. Put each value on its own line, separated by commas
-     ```terraform
-     listName = [
-       "first",
-       "second",
-       "third"
-     ]
-     ```
-  2. Put all values on a single line, also separated by commas
-     ```terraform
-     listName = [ "first", "second", "third" ]
-     ```
+
+Set the value of a List variable by using a pair of square brackets `[ ]` containing a comma-separated sequence of values:
+
+```terraform
+# Option 1 - Put each value on its own line, separated by commas
+listName = [
+ "first",
+ "second",
+ "third"
+]
+
+# Option 2 - Put all values on a single line, also separated by commas
+listName = [ "first", "second", "third" ]
+```
+
+- For Lists, all the values must be of the same Type
 - A comma after the last value is allowed, but not required
-- Using a specific value from the List:  `var.listName[3]`
+
+Using a specific value from the List:  `var.listName[3]`
 - Lists are zero-based, so the the first entry is always index 0:  `var.listName[0]`
-- Some example List Functions:
-  - Find the number of items inside a list:  `length(var.listName)`
+
+Some example List Functions:
+- Find the number of items inside a list:  `length(var.listName)`
 
 ### Tuple Variables
-- This is the *structural* version of the List type
-- You are allowed to use different variable Types inside the Tuple
+This is the *structural* version of the List type
+
+Defining a Tuple variable:
 - It requires you to define a schema within Square Brackets:
   - `type = tuple( [schema] )`
   - Example: `type = tuple( [ string, number, bool ] )`
+- You are allowed to use different variable Types inside the Tuple
 
 ### Map Variables
-Maps are represented by a pair of curly braces `{ }` containing a series of key/value pairs
-- Keys are always strings
-- Values must always be of the same Type
+Defining a Map variable:
 - `type = map(string)` This defines a Map where all the values are Strings
-  ```terraform
-  mapName = {
-    Key = "Value"
-    Key = "Value"
-  }
-  ```
 - `type = map(number)` This defines a Map where all the values are Numbers
-  ```terraform
-  mapName = {
-    Key = 500
-    Key = 32
-  }
-  ```
 - `type = map(list(string))` This defines a Map where all the values are Lists of Strings
-  ```terraform
-  mapName = {
-    Key = [ "value", "value" ]
-    Key = [ "value", "value" ]
-  }
-  ```
 - `type = map`
   - This shorthand is not recommended any more.  Instead, use `map(any)`
   - When using `map` or `map(any)` the Map values must still all be the same Type (string, number, etc.)
-- Quotes may be omitted on the Keys (unless the key starts with a number, in which case quotes are required)
-- Setting the value of a Map variable, two options:
-  1. Put each pair on its own line, separated by line breaks:
-     ```terraform
-     mapName = {
-       key1 = value1
-       key2 = value2
-     }
-     ```
-  2. For a single line, you must use commas to separate each pair:
-     ```terraform
-     mapName = { key1 = value1, key2 = value2 }
-     ```
+
+Set the value of a Map variable by using a pair of curly braces `{ }` containing a series of key/value pairs:
+
+```terraform
+# Option 1 - Put each pair on its own line, separated by line breaks:
+mapName = {
+ key1 = value1
+ key2 = value2
+}
+
+# Option 2 - For a single line, you must use commas to separate each pair:
+mapName = { key1 = value1, key2 = value2 }
+```
+
+- Keys are always strings
+  - Quotes may be omitted on the Keys (unless the key starts with a number, in which case quotes are required)
+- Values must always be of the same Type
 - You can use either equal signs `key1 = value1` or colons `key1: value1`
   - However, `terraform fmt` does NOT work on the colon style
-- Using a specific value from the Map, two options:
+
+Using a specific value from the Map, two options:
   1. `var.mapName.key1`
   2. `var.mapName["1key"]`
      - You must use this if the Key begins with a number
-- Some example Map Functions:
+
+Some example Map Functions:
   - Return just the values from a Map:  `values(var.mapName)`
 
 ### Object Variables
-- This is the 'structural' version of a Map variable
-- You are allowed to use different variable Types for each Value of the Object
+This is the *structural* version of a Map variable
+
+Defining an Object variable:
 - It requires you to define a schema within Curly Brackets
   - `type = object( {schema} )`
-  - Example: `type = object( { name = string, age = number } )`
+  - Example: `type = object( { key1 = string, key2 = number } )`
+- You are allowed to use different variable Types for each Value of the Object
 
 # Local Values (aka Locals)
+
 ```terraform
 # defining multiple locals
 locals {
@@ -426,11 +422,13 @@ locals {
 # use a local by prefixing the local's name with local.
 local.second
 ```
+
 - Instead of embedding complex expressions directly into resource properties, use Locals to contain the expressions
 - This makes your Configuration Files easier to read and understand. It avoids cluttering your resource definitions with logic
 - You can have a single `locals` block where you define multiple Locals, or you can split them up into multiple `locals` blocks
 
 # Data Sources
+
 ```terraform
 # defining a data source
 data "azurerm_storage_account" "someSymbolicName" {
@@ -449,6 +447,7 @@ data.azurerm_storage_account.someSymbolicName.<attribute>
 # Where `attribute` is specific to the resource that is being fetched by the data source
 # In this case it could be id, location, account_kind, etc.
 ```
+
 - Data Sources fetch up-to-date information from your Providers (Azure, AWS, etc.) each time you run Terraform
   - Each Provider has their own list of Data Sources that they support
 - All Data Sources are Read-Only!
@@ -526,11 +525,11 @@ resource "azurerm_storage_account" "someSymbolicName" {
   - Each Provider also defines the acceptable parameters to use for each resource type
   - Check your Provider's documentation to learn more about the supported resource types and their supported parameters
 - Terraform also supports a number of *Meta-Arguments* that are available to use for each `resource` block, such as `depends_on`, `count`, `for_each`, `provider`, `lifecycle`, and `provisioner`
-- This guide will go over the `count`, `for_each`, and `lifecycle` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/resources/syntax#meta-arguments) for more information
+- This guide will go over the `count`, `for_each`, and `lifecycle` meta-arguments.  But, for the others I would suggest reading the [documentation](https://developer.hashicorp.com/terraform/language/block/resource) for more information
 
 # Child Modules (aka Modules)
 
-- A Module is just a folder full of Configuration Files that is deployed from a Root Module
+- A Module is just a folder (full of Configuration Files) that is deployed from a Root Module
 - This allows you to reuse code
 - The Module’s folder should include the usual suspects:  `main.tf`, `variables.tf`, `outputs.tf`
   - `main.tf` = where you specify the resources that will be created by the module
@@ -553,23 +552,24 @@ module.someSymbolicName.<outputName>
 - Tip: The `source` attribute could point to a git repo if you wanted
   - That way you could use git tags to create “versions” of your module, and then you can reference specific versions of each module
 - Terraform also supports a number of *Meta-Arguments* that are available to use for each `module` block, such as `depends_on`, `count`, `for_each`, and `providers`
-- This guide will go over the `count` and `for_each` meta-arguments.  But, for the others I would suggest reading the [documentation](https://www.terraform.io/language/modules/syntax#meta-arguments) for more information
+- This guide will go over the `count` and `for_each` meta-arguments.  But, for the others I would suggest reading the [documentation](https://developer.hashicorp.com/terraform/language/block/module) for more information
 
 ### Module Notes
 - Some Resource configuration can be provided as inline blocks inside a parent Resource, or it can be provided as totally separate top-level Resources
   - Take Subnets for an example.  Subnets could be defined as inline blocks on the Virtual Network resource, or Subnets could be defined as their own top-level resources
   - When coding your Modules, it is always preferred to use the separate top-level resources whenever possible
-- Be careful when using the file() function inside of a Module, as the path to the file can get tricky.  Here are some special system variables that can help with this:
+- Be careful when using the `file()` function inside of a Module, as the path to the file can get tricky.  Here are some special system variables that can help with this:
   - `path.module`:  references the folder where the child module is located
   - `path.root`:  references the folder of the root module
 
 # Output Variables (aka Outputs)
 Outputs are used when you want to output one or more values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
+
 ```terraform
 # defining an output
 # remember, this is typically done in an outputs.tf file
 output "name" {
-  value       = azurerm_storage_account.someSymbolicName.id  # can be any terraform expression that you wish to output
+  value       = azurerm_storage_account.someSymbolicName.id  # required, can be any terraform expression that you wish to output
   description = "put a good description here"
   sensitive   = true
 }
@@ -578,20 +578,21 @@ output "name" {
 # outputs are displayed in the console after running certain terraform commands
 # you can also use a Remote State Data Source (see above) to read Output Variables
 ```
-- When defining an Output:
-  - `value` is the only required parameter
-  - Setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
+
+- When defining an Output, setting the `sensitive=true` parameter means that Terraform will not display the output’s value at the end of a `terraform apply`
 
 ---
 
 # Syntax Notes
 
 ### String Interpolation
+
 ```terraform
 "some string ${var.name} some more string"
 ```
 
 ### Comments
+
 ```terraform
 # begins a single-line comment, this is the default comment style
 
@@ -608,12 +609,13 @@ multi-line comment
 ### count Meta-Argument
 - Every Terraform `resource` or `module` block supports a meta-argument called `count`
 - `count` defines how many copies of that item to create
-- Example:
-  ```terraform
-  resource "azurerm_storage_account" "someSymbolicName" {
-    count = 5
-  }
-  ```
+
+```terraform
+resource "azurerm_storage_account" "someSymbolicName" {
+  count = 5
+}
+```
+
 - `count` must reference hard-coded values, variables, data sources, or lists.  It can NOT reference a value that needs to be computed
 - When you specify the `count` meta-argument on a resource, you can use a new variable inside that resource:  `count.index`
   - `count.index` represents the number of the loop that you’re currently on
@@ -635,41 +637,48 @@ multi-line comment
   - To reference a single instance of the resource created by count:  `azurerm_storage_account.someSymbolicName[2]`
   - To reference all instances of the resource created by count:  `azurerm_storage_account.someSymbolicName[*]` (this is called a "splat expression")
 
-#### Drawback 1:  The `count` meta-argument is not supported on inline blocks
-- For example, take this resource:
-  ```terraform
-  resource "someResource" "someName" {
-    key1 = value1
-    key2 = value2
+#### :x: Drawback 1:  The `count` meta-argument is not supported on inline blocks
+For example, take this resource:
 
-    inline-block {
-      keyA = valueA
-      keyB = valueB
-    }
+```terraform
+resource "someResource" "someName" {
+  key1 = value1
+  key2 = value2
+
+  inline-block {
+    keyA = valueA
+    keyB = valueB
   }
-  ```
-  - If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` meta-argument on the inline-block.  However, that is NOT supported
+}
+```
 
-#### Drawback 2:  Deleting a resource from the middle of a List is tricky
-- For example, say you used `count = 4` to create some users:
-  - `user[0] = arnold`
-  - `user[1] = sylvester`
-  - `user[2] = jean-claude`
-  - `user[3] = chuck`
-- Now, say you deleted the middle resource `sylvester`.  Every resource in the list after that will shift backwards in terms of index count, so you will be left with:
-  - `user[0] = arnold`
-  - `user[1] = jean-claude`
-  - `user[2] = chuck`
-  - This is a problem because terraform will need to delete the original `jean-claude[2]` and then create a new `jean-claude[1]`.  It will also have to delete the original `chuck[3]` and then create a new `chuck[2]`
-- **If you remove an item from the middle of the List, Terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
+If you needed to create multiple inline-blocks, then you may be tempted to just put the `count` meta-argument on the inline-block.  However, that is NOT supported
+
+#### :x: Drawback 2:  Deleting a resource from the middle of a List is tricky
+For example, say you used `count = 4` to create some users:
+- `user[0] = arnold`
+- `user[1] = sylvester`
+- `user[2] = jean-claude`
+- `user[3] = chuck`
+
+Now, say you deleted the middle resource `sylvester`.  Every resource in the list after that will shift backwards in terms of index count, so you will be left with:
+- `user[0] = arnold`
+- `user[1] = jean-claude`
+- `user[2] = chuck`
+
+This is a problem because terraform will need to delete the original `jean-claude[2]` and then create a new `jean-claude[1]`.  It will also have to delete the original `chuck[3]` and then create a new `chuck[2]`
+
+Summary: **If you remove an item from the middle of the List, Terraform will delete every resource after that item, and then it will recreate those resources again from scratch with new index values.**
 
 ### for_each Meta-Argument
-- Every Terraform `resource` or `module` block supports a meta-argument called `for_each`
-  ```terraform
-  resource "azurerm_storage_account" "someSymbolicName" {
-    for_each = var.Set(string) or var.Map
-  }
-  ```
+Every Terraform `resource` or `module` block supports a meta-argument called `for_each`
+
+```terraform
+resource "azurerm_storage_account" "someSymbolicName" {
+  for_each = var.Set(string) or var.Map
+}
+```
+
 - So, if your var.Set(string) or var.Map has 5 entries, then you'll get 5 different copies of that Resource
 - List variables are NOT supported in Resource Block `for_each`.  But, you can convert a List variable to a Set variable:  `for_each = toset(var.List)`
 - `for_each` must reference hardcoded values, variables, data sources, or lists.  It can NOT reference a value that needs to be computed
@@ -683,10 +692,11 @@ multi-line comment
 - Important: When you use `for_each` on a resource, the resource now becomes a Map
   - To reference a single instance of the resource created by for_each:  `azurerm_storage.someName[key]`
 
-#### Benefit 1:  Deleting from the middle is no problem
-- Since the resource is now considered a Map, deleting from the middle will no longer affect items further down the chain
+#### ✅ Benefit 1:  Deleting from the middle is no problem
+Since the resource is now considered a Map, deleting from the middle will no longer affect items further down the chain
 
-#### Benefit 2:  for_each is supported on inline blocks, by using a dynamic block
+#### ✅ Benefit 2:  for_each is supported on inline blocks, by using a dynamic block
+
 ```terraform
 resource "someResource" "someName" {
   key = value
@@ -701,6 +711,7 @@ resource "someResource" "someName" {
   }
 }
 ```
+
 - So, if your Collection/Structural var has 5 entries, then you'll get 5 different copies of that Inline Block
 - `dynamic` block `for_each` supports many types of variables, specifically Lists, Sets, Maps, Tuples, and Objects
 - When you specify the `for_each` parameter on a `dynamic` block, you can use new variables inside that Inline Block:  `<inlineBlockToDuplicate>.key` and `<inlineBlockToDuplicate>.value`
@@ -799,6 +810,7 @@ Template Directives are supported on regular Strings and Heredoc/Multi-line Stri
 # Lifecycle Settings Meta-Argument
 - Every terraform resource supports a `lifecycle` Meta-Argument block
 - It can configure how that resource is created, updated, or deleted
+
 ```terraform
 resource "azurerm_some_resource" "someName" {
   somekey = somevalue
@@ -831,6 +843,7 @@ resource "azurerm_some_resource" "someName" {
   }
 }
 ```
+
 - `create_before_destroy`
   - By default, when terraform must replace a resource, it will first delete the old/existing one, and then it will create the new one after that
   - If your old/existing resource is being referenced by other resources, then terraform will not be able to delete it
