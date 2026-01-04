@@ -1,10 +1,18 @@
 # Terraform Guide
 
+- Version: 1.0.0
+- Author:
+  - Nathan Nellans
+  - Email: me@nathannellans.com
+  - Web:
+    - https://www.nathannellans.com
+    - https://github.com/nnellans/terraform-guide
+
 > [!WARNING]
 > This is an advanced guide and assumes you already know the basics of Terraform.  Think of this more like an advanced cheat sheet.  I went through various sources, captured any notes that I felt were important, and organized them into the README file you see here.  If you are new to Terraform, then I would suggest first going through the [HashiCorp Docs](https://www.terraform.io/docs) or doing a couple [HashiCorp Learn](https://learn.hashicorp.com/) courses.
 
 > [!NOTE]
-> Terraform comes in a few different versions.  This guide covers Terraform "*Open Source*" only.  It doesn't cover Terraform "*Cloud*" or Terraform "*Enterprise*".
+> Terraform comes in a few different versions.  This guide covers the free Terraform CLI version only.  It doesn't cover Terraform "*Cloud*" or Terraform "*Enterprise*".
 
 > [!IMPORTANT]
 This is a live document.  Some of the sections are still a work in progress.  I will be continually updating it over time.
@@ -13,36 +21,33 @@ This is a live document.  Some of the sections are still a work in progress.  I 
 
 # Table of Contents
 
-Part 1 - Terraform Files, Folder Structure, and Blocks
-- [Configuration Files](README.md#configuration-files)
-- [Root Module](README.md#root-module)
-- [Folder Structure](README.md#typical-root-module-folder-structure)
-- [terraform Block](README.md#terraform-block)
-- [provider Blocks](README.md#provider-configuration-blocks)
-- [terraform init](README.md#terraform-init)
-
-Part 2 - Terraform State
-- [State Files](README.md#state-files)
-- [Local Backend](README.md#local-backend)
-- [Remote Backend](README.md#remote-backend)
-- [Terraform Workspaces](README.md#terraform-workspaces)
-
-Part 3 - Terraform Code
-- [Input Variables](README.md#input-variables-aka-variables)
-- [Local Values](README.md#local-values-aka-locals)
-- [Data Sources](README.md#data-sources)
-- [Resources](README.md#resources)
-- [Child Modules](README.md#child-modules-aka-modules)
-- [Output Variables](README.md#output-variables-aka-outputs)
-
-Part 4 - Everything Else
-- [Syntax Notes](README.md#syntax-notes)
-- [Loops (count and for_each)](README.md#loops)
-- [For Expressions](README.md#for-expressions)
-- [String Directives](README.md#string-directives)
-- [Lifecycle Settings](README.md#lifecycle-settings)
-- [Terraform CLI Commands](README.md#terraform-cli-commands)
-- [.gitignore File](README.md#gitignore-file)
+- Part 1 - Terraform Files, Folder Structure, and Blocks
+  - [Configuration Files](README.md#configuration-files)
+  - [Root Module](README.md#root-module)
+  - [Folder Structure](README.md#typical-root-module-folder-structure)
+  - [terraform Block](README.md#terraform-block)
+  - [provider Blocks](README.md#provider-configuration-blocks)
+  - [terraform init](README.md#terraform-init)
+- Part 2 - Terraform State
+  - [State Files](README.md#state-files)
+  - [Local Backend](README.md#local-backend)
+  - [Remote Backend](README.md#remote-backend)
+  - [Terraform Workspaces](README.md#terraform-workspaces)
+- Part 3 - Terraform Code
+  - [Input Variables](README.md#input-variables-aka-variables)
+  - [Local Values](README.md#local-values-aka-locals)
+  - [Data Sources](README.md#data-sources)
+  - [Resources](README.md#resources)
+  - [Child Modules](README.md#child-modules-aka-modules)
+  - [Output Variables](README.md#output-variables-aka-outputs)
+- Part 4 - Everything Else
+  - [Syntax Notes](README.md#syntax-notes)
+  - [Loops (count and for_each)](README.md#loops)
+  - [For Expressions](README.md#for-expressions)
+  - [String Directives](README.md#string-directives)
+  - [Lifecycle Settings](README.md#lifecycle-settings)
+  - [Terraform CLI Commands](README.md#terraform-cli-commands)
+  - [.gitignore File](README.md#gitignore-file)
 
 ---
 
@@ -59,7 +64,7 @@ Part 4 - Everything Else
 - When you run Terraform commands such as `terraform plan` or `terraform apply` you run it against a directory of Configuration Files.  This directory could contain one Configuration File, or it could contain many
 - Separating your Terraform code into multiple Configuration Files is totally optional and for you to decide.  Using multiple Configuration Files can make it easier for readers and maintainers of your code
 - Terraform will automatically evaluate ALL Configuration Files found in the **top level** of the directory you run it against
-- This top-level directory is commonly referred to as the *Root Module*
+  - This top-level directory is commonly referred to as the *Root Module*
 
 ### Typical Root Module Folder Structure
 - `main.tf`
@@ -77,8 +82,9 @@ Part 4 - Everything Else
   - Same as above, you may not always find this file, and if not, the `data` blocks are typically found in `main.tf` instead
 
 ### terraform block
+
 ```terraform
-# ROOT MODULE ONLY
+# Example for Root Module ONLY
 terraform {
 
   required_version = "=1.2.0"
@@ -101,7 +107,7 @@ terraform {
 
 }
 
-# CHILD MODULE ONLY
+# Example for Child Module ONLY
 terraform {
 
   required_version = ">= 1.0.0"  # only specify minimum in child modules
@@ -118,24 +124,25 @@ terraform {
 
 }
 ```
+
 - The `terraform` block supports hard-coded values only
 - `required_version` is used to specify which version(s) of Terraform are supported by this module
-  - You can specify an exact version, a min version, a max version, or even a range of versions.  See the [Version Constraints](https://developer.hashicorp.com/terraform/language/expressions/version-constraints) documentation for more info
-  - In Child Modules, you should only specify a minimum version.  Let the Root Module specify the maximum version
-- `required_providers` declares which providers are used by this module, so that Terraform can install and use these Providers
-  - In Root Modules:
-    - You should include all Providers being used by the Root Module plus any Child Modules being called
+  - You can specify an exact version, a min, a max, or a range of versions.  See the [Version Constraints](https://developer.hashicorp.com/terraform/language/expressions/version-constraints) documentation for more info
+  - In Child Modules, you should only specify a minimum version.  Let the Root Module dictate the maximum version
+- `required_providers` declares which providers are used by this module, so that Terraform can install and use those Providers
+  - In Root Modules, you should include all Providers being used by the Root Module, plus any Providers being used by Child Modules
   - In Child Modules:
     - You only need to include Providers being used by that Child Module
-    - You should only specify a minimum version.  Let the Root Module specify the maximum version
+    - You should only specify a minimum version.  Let the Root Module dictate the maximum version
     - If your Child Module uses multiple copies of the same Provider, then specify the `configuration_aliases` argument, this specifies the exact Providers and their Aliases that must be passed to this Child Module when calling it
 - `backend` is used to configure which Backend the Terraform CLI will use
   - This block only belongs in Root Modules
-- The `terraform` block has a few other uses, but they will not be covered here.  Read the [Terraform Settings](https://www.terraform.io/language/settings) docs for more info
+- The `terraform` block has a few other uses, but they will not be covered here.  Read the [terraform block reference](https://developer.hashicorp.com/terraform/language/block/terraform) docs for more info
 
 ### provider Configuration Blocks
+
 ```terraform
-# ROOT MODULE ONLY
+# Example for Root Module ONLY
 provider "aws" {
   region = "us-east-1"
 }
@@ -155,8 +162,9 @@ provider "google" {
   region  = "us-central1"
 }
 ```
-- Each Provider has its own unique settings.  This may include things such as the credentials used to authenticate to the vendor's API, which region to use, which subscription to use, etc.
-  - Do not put sensitive credentials in the `provider` block.  Passwords stored directly in code are **bad**!
+
+- Each Provider has its own unique settings.  This may include settings such as the credentials used to authenticate to the vendor's API, which region to use, which subscription to use, etc.
+  - Do not put sensitive credentials in the `provider` block, as storing passwords directly in code is a **bad** idea!
   - Some Providers support alternate ways to provide these values, such as using environment variables.  It is recommended to use these alternate methods
   - Check out your Provider's documentation for more information
 - You may still see code that uses the `version` argument inside of a `provider` block.  Do NOT use this, it's deprecated.  Instead, you should specify the supported Provider versions in the `terraform` block (see above)
@@ -169,18 +177,18 @@ provider "google" {
 ### terraform init
 You must run `terraform init` at least once before you can run any `plan` or `apply` commands.  The `terraform init` command is a powerful command that has 3 different purposes:
 
-1 - Configures your Providers
+Purpose 1 - Configures your Providers
 - It looks at your Configuration Files, figures out which Providers your code uses, and then automatically downloads those Providers into the `.terraform` folder
 - It will automatically create a lock file named `.terraform.lock.hcl`
   - The lock file stores the exact versions of the Providers that were downloaded by `init`
-  - You should store this file in version control along with your code.  This way everyone will use the same lock file and as a result everyone will download the same Provider versions
-  - How do you upgrade to a new Provider version?  First, upgrade the Provider version in the `terraform.required_providers` block and then run `terraform init -upgrade`.  This will download the new Provider and it will automatically update the `.terraform.lock.hcl` file as well
+  - Store this file in version control along with your code.  This way everyone will use the same lock file, and as a result everyone will download the same Provider versions
+  - How do you upgrade to a new Provider version?  First, upgrade the Provider version in the `terraform.required_providers` block and then run `terraform init -upgrade`.  This will download the new Provider and it will also update the `.terraform.lock.hcl` file
 - Any time you add a new Provider to your code you will need to run `terraform init` again in order to download that Provider
 
-2 - Initializes your chosen Backend
+Purpose 2 - Initializes your chosen Backend
 - Any time you change to a different Backend you will need to run `terraform init` again in order to initialize the new Backend
 
-3 - Configures your Modules
+Purpose 3 - Configures your Modules
 - Any time you add a Module to your Configuration Files, or you change the source of an existing Module, you will need to run `terraform init` again
 
 ---
@@ -189,7 +197,7 @@ You must run `terraform init` at least once before you can run any `plan` or `ap
 
 ### State Files
 - State Files use a custom JSON format
-- You should NEVER manually edit State Files.  Instead, use commands like `terraform import` and `terraform state` to modify the state
+- Ideally, you should NEVER manually edit State Files.  Instead, use commands like `terraform import` and `terraform state`, or blocks like `import` and `moved`, to modify the state
 - You should NEVER store your State Files in Version Control Systems like Git:
   - State Files are stored in plain text, and they often include passwords and other sensitive information
 - Make sure your State Files are stored in a secure location and accessible only by users or accounts who require access
@@ -199,46 +207,47 @@ You must run `terraform init` at least once before you can run any `plan` or `ap
 - This will be created as a file named `terraform.tfstate` in the Root Module
 - Problems with a Local Backend:
   - The State File is local to your computer and can not be shared by other teammates
-  - You can only use 1 local State File
-    - (Workspaces are an exception, but they are not recommended)
-- You can start with a Local Backend, and later you can change your code to use a Remote Backend. Terraform will recognize the local State File and prompt you to copy it to the new Remote Backend
+  - You can only use 1 local State File (Workspaces are an exception, but they are not recommended)
+- You can start with a Local Backend, and later you can change your code to use a Remote Backend. Terraform will recognize this, and it will prompt you to copy the local State File to the new Remote Backend
 
 ### Remote Backend
 - You can only configure 1 Remote Backend per Root Module
 - Configuring a Remote Backend is done in the `backend` block inside the `terraform` block:
-  ```terraform
-  terraform {
-    backend "azurerm" {
-      key1 = value1
-      key2 = value2
-      key3 = value3
-    }
+
+```terraform
+terraform {
+  backend "azurerm" {
+    key1 = value1
+    key2 = value2
+    key3 = value3
   }
-  ```
+}
+```
+
 - Remote Backends require configuration parameters, which specify:
   - How to find the storage (name, resource group, etc.)
   - How to authenticate to the storage (service principal, access key, etc.)
-- Read your Remote Backend's documentation for for more info
+- Read your Remote Backend's documentation for more info
 - `backend` blocks can NOT use Terraform variables or references, they must use hard-coded values
   - This is because Terraform sets the Remote Backend as its very first step, even before it processes variables
-- Do NOT put sensitive values directly in the `backend` block.  Passwords in code are bad!
+- Do NOT put sensitive values directly in the `backend` block.  Again, passwords in code are bad!
 - You can remove some or all of the key/value pairs from the `backend` block and provide them in other ways:
   - Option 1 is individual key/value pairs:  `terraform.exe -backend-config="key=value" -backend-config="key=value"`
   - Option 2 is to use a separate file:  `terraform.exe -backend-config=backend.hcl`
     - Where `backend.hcl` is a file which contains only the key/value pairs that are needed by the backend
     - If this file contains sensitive values, then do NOT check it into version control
   - Option 3 is using environment variables supported by your Backend.  Each Backend supports its own special environment variables.  Check your Backend's documentation for more information
-    - This is the preferred option, as credentials are kept out of your code
+    - If your Backend supports it, then this is the preferred option, as credentials are kept out of your code
 
 ### Terraform Workspaces
-- Note: These are different from Terraform "Cloud" Workspaces
-- If you create Workspaces, they each get their own State File.  However, all Workspaces will still share the same Backend
+- Each Workspace you create gets its own State File.  However, all Workspaces will still share the same Backend
 - State Files for Workspaces are placed in a new subfolder called `env:` and each Workspace gets its own subfolder under that:
   - `<backend>\env:\workspace1\terraform.tfstate`
   - `<backend>\env:\workspace2\terraform.tfstate`
 - Switching Workspaces is equivalent to changing the path where your State File is stored
 - In general, these are confusing.  It can be easy to mix up Workspaces and forget which one you are currently working on
 - If possible, stay away from using these!
+- Note: These are different from Terraform "Cloud" Workspaces
 
 ---
 
@@ -264,6 +273,7 @@ variable "exampleVarName" {
 # use a variable by prefixing the variable's name with var.
 var.exampleVarName
 ```
+
 - When defining a Variable, all parameters are optional
   - If `type` is omitted, then the default is `any`
   - If `sensitive` is omitted, then the default is `false`
