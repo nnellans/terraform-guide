@@ -22,11 +22,11 @@ This is a live document.  Some of the sections are still a work in progress.  I 
 # Table of Contents
 
 - Part 1 - Terraform Files, Folder Structure, and Blocks
-  - [Configuration Files](README.md#part-1---terraform-files-folder-structure-and-blocks))
+  - [Configuration Files](README.md#configuration-files)
   - [Root Module](README.md#root-module)
-  - [Folder Structure](README.md#typical-root-module-folder-structure)
+  - [Typical Root Module Folder Structure](README.md#typical-root-module-folder-structure)
   - [terraform Block](README.md#terraform-block)
-  - [provider Blocks](README.md#provider-configuration-blocks)
+  - [provider Configuration Blocks](README.md#provider-configuration-blocks)
   - [terraform init](README.md#terraform-init)
 - Part 2 - Terraform State
   - [State Files](README.md#state-files)
@@ -34,18 +34,19 @@ This is a live document.  Some of the sections are still a work in progress.  I 
   - [Remote Backend](README.md#remote-backend)
   - [Terraform Workspaces](README.md#terraform-workspaces)
 - Part 3 - Terraform Code
-  - [Input Variables](README.md#input-variables-aka-variables)
-  - [Local Values](README.md#local-values-aka-locals)
+  - [Input Variables (aka Variables)](README.md#input-variables-aka-variables)
+  - [Local Values (aka Locals)](README.md#local-values-aka-locals)
   - [Data Sources](README.md#data-sources)
   - [Resources](README.md#resources)
-  - [Child Modules](README.md#child-modules-aka-modules)
-  - [Output Variables](README.md#output-variables-aka-outputs)
+  - [Child Modules (aka Modules)](README.md#child-modules-aka-modules)
+  - [Output Variables (aka Outputs)](README.md#output-variables-aka-outputs)
 - Part 4 - Everything Else
-  - [Syntax Notes](README.md#syntax-notes)
-  - [Loops (count and for_each)](README.md#loops)
+  - [String Interpolation](README.md#string-interpolation)
+  - [Comments](README.md#comments)
+  - [Loops](README.md#loops)
   - [For Expressions](README.md#for-expressions)
-  - [String Directives](README.md#string-directives)
-  - [Lifecycle Settings](README.md#lifecycle-settings)
+  - [Template Directives](README.md#template-directives)
+  - [Lifecycle Settings Meta-Argument](README.md#lifecycle-settings-meta-argument)
   - [Terraform CLI Commands](README.md#terraform-cli-commands)
   - [.gitignore File](README.md#gitignore-file)
 
