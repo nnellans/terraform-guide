@@ -232,6 +232,8 @@ You must run `terraform init` at least once before you can run any `plan` or `ap
 
 ## Local Backend
 
+[Documentation - Backend Type - Local](https://developer.hashicorp.com/terraform/language/backend/local)
+
 - This is the default backend that Terraform will use unless you specify a different backend
 - This will be created as a file named `terraform.tfstate` in the Root Module
 - Problems with a Local Backend:
