@@ -56,6 +56,10 @@ This is a live document.  Some of the sections are still a work in progress.  I 
 
 ## Configuration Files
 
+[Documentation - Configuration Language](https://developer.hashicorp.com/terraform/language)
+
+[Documentation - Configuration Syntax](https://developer.hashicorp.com/terraform/language/syntax/configuration)
+
 - Files that contain Terraform code are officially called *configuration files*
 - They can be written in 2 different formats:
   - native format which uses the `.tf` file extension
@@ -63,6 +67,8 @@ This is a live document.  Some of the sections are still a work in progress.  I 
 - This guide will only focus on the native format
 
 ## Root Module
+
+[Documentation - Modules overview](https://developer.hashicorp.com/terraform/language/modules)
 
 - When you run Terraform commands (like `terraform plan`) they run against a directory of Configuration Files
   - This directory could contain one Configuration File, or it could contain many
@@ -72,6 +78,8 @@ This is a live document.  Some of the sections are still a work in progress.  I 
   - This top-level directory is commonly referred to as the *Root Module*
 
 ## Typical Root Module Folder Structure
+
+Feel free to name your files whatever you want, but here are some of the common naming standards that I've seen:
 
 - `main.tf`
   - Contains all of your `resource` blocks, `module` blocks, `data` blocks, `locals` blocks
@@ -88,6 +96,8 @@ This is a live document.  Some of the sections are still a work in progress.  I 
   - Same as above, you may not always find this file
 
 ## terraform block
+
+[Documentation - Terraform block reference](https://developer.hashicorp.com/terraform/language/block/terraform)
 
 ```terraform
 # Example for Root Module ONLY
@@ -147,6 +157,10 @@ terraform {
 
 ## provider Configuration Blocks
 
+[Documentation - Provider Requirements](https://developer.hashicorp.com/terraform/language/providers/requirements)
+
+[Documentation - Provider block reference](https://developer.hashicorp.com/terraform/language/block/provider)
+
 ```terraform
 # Example for Root Module ONLY
 provider "aws" {
@@ -182,6 +196,10 @@ provider "google" {
 
 ## terraform init
 
+[Documentation - Initialize the Working Directory](https://developer.hashicorp.com/terraform/cli/init)
+
+[Documentation - terraform init command reference](https://developer.hashicorp.com/terraform/cli/commands/init)
+
 You must run `terraform init` at least once before you can run any `plan` or `apply` commands.  The `terraform init` command is a powerful command that has 3 different purposes:
 
 1️⃣ Purpose 1 - Configures your Providers
@@ -204,6 +222,8 @@ You must run `terraform init` at least once before you can run any `plan` or `ap
 
 ## State Files
 
+[Documentation - State](https://developer.hashicorp.com/terraform/language/state)
+
 - State Files use a custom JSON format
 - Ideally, you should NEVER manually edit State Files.  Instead, use commands like `terraform import` and `terraform state`, or blocks like `import` and `moved`, to modify the state
 - You should NEVER store your State Files in Version Control Systems like Git:
@@ -220,6 +240,10 @@ You must run `terraform init` at least once before you can run any `plan` or `ap
 - You can start with a Local Backend, and later you can change your code to use a Remote Backend. Terraform will recognize this, and it will prompt you to copy the local State File to the new Remote Backend
 
 ## Remote Backend
+
+[Documentation - Remote State](https://developer.hashicorp.com/terraform/language/state/remote)
+
+[Documentation - State Storage and Locking](https://developer.hashicorp.com/terraform/language/state/backends)
 
 - You can only configure 1 Remote Backend per Root Module
 - Configuring a Remote Backend is done in the `backend` block inside the `terraform` block:
@@ -251,6 +275,8 @@ terraform {
 
 ## Terraform Workspaces
 
+[Documentation - Workspaces](https://developer.hashicorp.com/terraform/language/state/workspaces)
+
 - Each Workspace you create gets its own State File.  However, all Workspaces will still share the same Backend
 - State Files for Workspaces are placed in a new subfolder called `env:` and each Workspace gets its own subfolder under that:
   - `<backend>\env:\workspace1\terraform.tfstate`
@@ -265,6 +291,8 @@ terraform {
 # Part 3 - Terraform Code
 
 ## Input Variables (aka Variables)
+
+[Documentation - Use input variables to add modules arguments](https://developer.hashicorp.com/terraform/language/values/variables)
 
 ```terraform
 # defining a variable
@@ -315,6 +343,10 @@ Values are loaded in the following order, with the later options taking preceden
 4. `-var` and `-var-file` options, in the order they are given on the commandline
 
 ## Variable Types
+
+[Documentation - Types and Values](https://developer.hashicorp.com/terraform/language/expressions/types)
+
+[Documentation - Type Constraints](https://developer.hashicorp.com/terraform/language/expressions/type-constraints)
 
 ### String Variables
 
@@ -431,6 +463,8 @@ Defining an Object variable:
 
 ## Local Values (aka Locals)
 
+[Documentation - Use locals to reuse expressions](https://developer.hashicorp.com/terraform/language/values/locals)
+
 ```terraform
 # defining multiple locals
 locals {
@@ -448,6 +482,8 @@ local.second
 - You can have a single `locals` block where you define multiple Locals, or you can split them up into multiple `locals` blocks
 
 ## Data Sources
+
+[Documentation - Query infrastructure data](https://developer.hashicorp.com/terraform/language/data-sources)
 
 ```terraform
 # defining a data source
@@ -536,6 +572,8 @@ data "external" "symbolicName" {
 
 ## Resources
 
+[Documentation - Resource block reference](https://developer.hashicorp.com/terraform/language/block/resource)
+
 - Resources are the most important element in the Terraform language
 - Each `resource` block describes one or more infrastructure objects, such as virtual networks, compute instances, or higher-level components such as DNS records
 
@@ -555,6 +593,12 @@ resource "azurerm_storage_account" "someSymbolicName" {
 - This guide will go over the `count`, `for_each`, and `lifecycle` meta-arguments.  But, for the others I would suggest reading the [documentation](https://developer.hashicorp.com/terraform/language/block/resource) for more information
 
 ## Child Modules (aka Modules)
+
+[Documentation - Modules overview](https://developer.hashicorp.com/terraform/language/modules)
+
+[Documentation - Module block reference](https://developer.hashicorp.com/terraform/language/block/module)
+
+[Documentation - Use modules in your configuration](https://developer.hashicorp.com/terraform/language/modules/configuration)
 
 - A Module is just a folder (full of Configuration Files) that is deployed from a Root Module
 - This allows you to reuse code
@@ -594,6 +638,10 @@ module.someSymbolicName.<outputName>
 
 ## Output Variables (aka Outputs)
 
+[Documentation - Use outputs to expose module data](https://developer.hashicorp.com/terraform/language/values/outputs)
+
+[Documentation - Output block reference](https://developer.hashicorp.com/terraform/language/block/output)
+
 Outputs are used when you want to output one or more values from one Terraform Root Module, and consume those values in a separate Terraform Root Module
 
 ```terraform
@@ -618,11 +666,15 @@ output "name" {
 
 ## String Interpolation
 
+[Documentation - Strings and Templates](https://developer.hashicorp.com/terraform/language/expressions/strings)
+
 ```terraform
 "some string ${var.name} some more string"
 ```
 
 ## Comments
+
+[Documentation - Configuration Syntax](https://developer.hashicorp.com/terraform/language/syntax/configuration)
 
 ```terraform
 # begins a single-line comment, this is the default comment style
@@ -638,6 +690,8 @@ multi-line comment
 ## Loops
 
 ### count Meta-Argument
+
+[Documentation - count reference](https://developer.hashicorp.com/terraform/language/meta-arguments/count)
 
 - Every Terraform `resource` or `module` block supports a meta-argument called `count`
 - `count` defines how many copies of that item to create
@@ -706,6 +760,8 @@ Summary: **If you remove an item from the middle of the List, Terraform will del
 
 ### for_each Meta-Argument
 
+[Documentation - for_each reference](https://developer.hashicorp.com/terraform/language/meta-arguments/for_each)
+
 Every Terraform `resource` or `module` block supports a meta-argument called `for_each`
 
 ```terraform
@@ -763,6 +819,8 @@ resource "someResource" "someName" {
 
 ## For Expressions
 
+[Documentation - For expressions](https://developer.hashicorp.com/terraform/language/expressions/for)
+
 - `for` expressions take an input of a List, Set, Tuple, Map, or Object
 - `for` expressions will output either:
   - a Tuple if you use square brackets `[ ]`
@@ -808,6 +866,8 @@ resource "someResource" "someName" {
 
 ## Template Directives
 
+[Documentation - Strings and Templates](https://developer.hashicorp.com/terraform/language/expressions/strings)
+
 (WIP)
 
 Template Directives are supported on regular Strings and Heredoc/Multi-line Strings.  It is recommended to only use them with Heredoc Strings so that you can use multiple lines for better readability
@@ -850,6 +910,8 @@ Template Directives are supported on regular Strings and Heredoc/Multi-line Stri
   ```
 
 ## Lifecycle Settings Meta-Argument
+
+[Documentation - lifecycle reference](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle)
 
 - Every terraform resource supports a `lifecycle` Meta-Argument block
 - It can configure how that resource is created, updated, or deleted
@@ -897,7 +959,11 @@ resource "azurerm_some_resource" "someName" {
   - This is a list of resource attributes that you want Terraform to ignore.  If the value of that attribute differs in real life vs. the Terraform code, then Terraform will just ignore it and not try to make any changes
 
 ## terraform CLI Commands
+
+[Documentation - Terraform CLI Overview](https://developer.hashicorp.com/terraform/cli/commands)
+
 (WIP)
+
 - `terraform apply`
   - work in progress
 - `terraform console`
@@ -945,18 +1011,4 @@ resource "azurerm_some_resource" "someName" {
 
 # References
 
-- Book - [Terraform Up and Running](https://www.terraformupandrunning.com/)
-- HashiCorp - [Terraform block reference](https://developer.hashicorp.com/terraform/language/block/terraform)
-- HashiCorp - [Backend block configuration overview](https://developer.hashicorp.com/terraform/language/backend)
-- HashiCorp - [Provider Requirements](https://developer.hashicorp.com/terraform/language/providers/requirements)
-- HashiCorp - [Provider block reference](https://developer.hashicorp.com/terraform/language/block/provider)
-- HashiCorp - [Providers Within Modules](https://developer.hashicorp.com/terraform/language/modules/develop/providers)
-- HashiCorp - [Version Constraints](https://developer.hashicorp.com/terraform/language/expressions/version-constraints)
-- HashiCorp - [Use input variables to add module arguments](https://developer.hashicorp.com/terraform/language/values/variables)
-- HashiCorp - [Types and Values](https://developer.hashicorp.com/terraform/language/expressions/types)
-- HashiCorp - [Type Constraints](https://developer.hashicorp.com/terraform/language/expressions/type-constraints)
-- HashiCorp - [Use locals to reuse expressions](https://developer.hashicorp.com/terraform/language/values/locals)
-- HashiCorp - [Modules overview](https://developer.hashicorp.com/terraform/language/modules)
-- HashiCorp - [Module block reference](https://developer.hashicorp.com/terraform/language/block/module)
-- HashiCorp - [Use modules in your configuration](https://developer.hashicorp.com/terraform/language/modules/configuration)
-- HashiCorp - [Use outputs to expose module data](https://developer.hashicorp.com/terraform/language/values/outputs)
+- [Terraform Up and Running](https://www.terraformupandrunning.com/)
