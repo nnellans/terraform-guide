@@ -970,19 +970,20 @@ resource "azurerm_some_resource" "someName" {
 
 [Documentation - Terraform CLI Overview](https://developer.hashicorp.com/terraform/cli/commands)
 
-(WIP)
+The Terraform CLI has many different commands available.  I will discuss some of them below.  For the full list please check the docs linked above.
 
 - `terraform apply`
-  - work in progress
+  - In its default form, this command will first run `terraform plan` to build an execution plan. It will show you the execution plan and ask you to confirm. If you approve, it will then apply the changes to the real life resources
+  - There are a lot of options for modifying this command, [check the docs](https://developer.hashicorp.com/terraform/cli/commands/apply) for more details
 - `terraform console`
-  - Launches an interactive, read-only console to try out built-in functions, query the state of your infrastructure, etc.
+  - Launches an interactive, read-only console to try out built-in Terraform functions, query the state of your infrastructure, etc.
 - `terraform destroy`
   - Finds all resources managed by your code, and deletes them in real life
   - There is no "undo" so be very careful!
 - `terraform fmt`
   - Automatically formats all of your code to match Terraform's [preferred style](https://developer.hashicorp.com/terraform/language/style)
 - `terraform graph`
-  - Shows you the dependency graph for the resources
+  - Shows you the dependency graph for the resources in your code
   - It outputs into a graph description language called DOT
   - You can use tools like Graphviz or GraphvizOnline to convert into an image
 - `terraform import`
@@ -999,27 +1000,31 @@ resource "azurerm_some_resource" "someName" {
   - List just one specific Output Variable:  `terraform output <name>`
     - Tip: this is great for scripts where you may need to grab an output variable from terraform and use it somewhere else.
 - `terraform plan`
-  - work in progress
-- `terraform state`
-  - work in progress
+  - This command compares your Terraform code with the real life resources, and shows you an execution plan of the changes that Terraform wants to make
+  - It just shows you the plan, it does not make any changes to the real life resources
+- `terraform state list`
+  - Lists all of the resources in your state file
+- `terraform state mv <oldResourceIdentifier> <newResourceIdentifier>`
+  - You need this command when you want to rename a resource in your code, essentially "moving" it to a new identifier
+  - Also helpful if you want to transition a standalone resource to a module
+  - An alternative to running this command is to use a [moved block](https://developer.hashicorp.com/terraform/language/block/moved) in your Terraform code
+- `terraform state show <resourceIdentifier>`
+  - Will read Terraform's state and show you the full details of the given resource
 - `terraform workspace`
   - For working with local terraform workspaces
 
 ## .gitignore File
 
-(WIP)
-- `.terraform`
-  - Terraform’s scratch directory, is created inside each config folder where you run `terraform init` and includes the downloaded providers.
-- `*.tfstate`
-  - Local state files, never check these into version control as they contain secrets in clear text
-- `*.tfstate.backup`
-  - Backups of local state files
-- `backend.hcl`
-  - The standard filename when you use partial configuration for Remote Backend.
-  - You only need to ignore this if you're storing **sensitive** keys/values in this file.
+[GitHub's template for a Terraform .gitignore file](https://github.com/github/gitignore/blob/main/Terraform.gitignore)
+
+It is important to make sure you have a proper `.gitignore` file when working with Terraform code.
+
+This can help you avoid accidents such as committing your local state files to your repository.
 
 ---
 
 # References
 
-- [Terraform Up and Running](https://www.terraformupandrunning.com/)
+- [Terraform Language Documentation](https://developer.hashicorp.com/terraform/language)
+- [Terraform CLI Documentation](https://developer.hashicorp.com/terraform/cli)
+- [Book - Terraform Up and Running](https://www.terraformupandrunning.com/)
