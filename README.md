@@ -462,7 +462,7 @@ Some example Map Functions:
 
 ### Object Variables
 
-This is the *structural* version of a Map variable, and requires that you define a schema for its values using curly brackets `{ }`
+This is the *structural* version of a Map variable, and requires that you define a schema for its key/value pairs using curly brackets `{ }`
 
 Defining an Object variable:
 - `type = object( {schema} )`
