@@ -842,11 +842,12 @@ resource "someResource" "someName" {
   - `<item>` is the local variable name to assign to each item in the list/set/tuple
   - `<output>` is the value to put into the resultant Tuple, an expression that modifies `<item>` in some way
   - `<condition>` is optional and you could use it to further refine what values go into the resultant Tuple
-- `newTuple = [for <index>, <item> in var.List : <output> <condition>]`
+- Add an index:
+  - `newTuple = [for <index>, <item> in var.List : <output> <condition>]`
   - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
 - Example:
   - `newTuple = [for name in var.List : upper(name) if length(name) < 5]`
-  - This looks at `var.List` and converts each entry to uppercase, returns only the names that are less than 5 characters, and stores the modified entries in `newList`
+  - This looks at `var.List` and converts each entry to uppercase, returns only the names that are less than 5 characters, and stores the modified entries in `newTuple`
 
 #### Input: Map/Object<br />Output: Tuple
 
@@ -864,7 +865,8 @@ resource "someResource" "someName" {
   - `<item>` is the local variable name to assign to each item in the list/set/tuple
   - `<outputKey>` and `<outputValue>` is what to put into the resultant Object, they can be expressions that modify `<item>` in some way
   - `<condition>` is optional and you could use it to further refine what key/value pairs go into the resultant Object
-- `newObject = {for <index>, <item> in var.List : <outputKey> => <outputValue> <condition>}`
+- Add an index:
+  - `newObject = {for <index>, <item> in var.List : <outputKey> => <outputValue> <condition>}`
   - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
 
 #### Input: Map/Object<br />Output: Object
