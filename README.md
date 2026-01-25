@@ -1,6 +1,6 @@
 # Terraform Guide
 
-- Version: 1.0.0
+- Version: 1.1.0
 - Author:
   - Nathan Nellans
   - Email: me@nathannellans.com
