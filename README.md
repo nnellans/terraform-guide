@@ -836,7 +836,7 @@ resource "someResource" "someName" {
 
 ### [Square Brackets] return a Tuple
 
-#### Input: List/Set/Tuple, Output: Tuple
+#### Input: List/Set/Tuple<br />Output: Tuple
 
 - `newTuple = [for <item> in var.List : <output> <condition>]`
   - `<item>` is the local variable name to assign to each item in the list/set/tuple
@@ -848,7 +848,7 @@ resource "someResource" "someName" {
   - `newTuple = [for name in var.List : upper(name) if length(name) < 5]`
   - This looks at `var.List` and converts each entry to uppercase, returns only the names that are less than 5 characters, and stores the modified entries in `newList`
 
-#### Input: Map/Object, Output: Tuple
+#### Input: Map/Object<br />Output: Tuple
 
 - `newTuple = [for <key>, <value> in var.Map : <output> <condition>]`
 - The rest is the same as above
@@ -858,7 +858,7 @@ resource "someResource" "someName" {
 
 ### {Curly Brackets} return an Object
 
-#### Input: List/Set/Tuple, Output: Object
+#### Input: List/Set/Tuple<br />Output: Object
 
 - `newObject = {for <item> in var.List : <outputKey> => <outputValue> <condition>}`
   - `<item>` is the local variable name to assign to each item in the list/set/tuple
@@ -867,7 +867,7 @@ resource "someResource" "someName" {
 - `newObject = {for <index>, <item> in var.List : <outputKey> => <outputValue> <condition>}`
   - If your input is a List or Tuple, you can also use this format which gives you access to both the index value and the item value at the same time
 
-#### Input: Map/Object, Output: Object
+#### Input: Map/Object<br />Output: Object
 
 - `newObject = {for <key>, <value> in var.Map : <outputKey> => <outputValue> <condition>}`
 - The rest is the same as above
