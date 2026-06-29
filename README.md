@@ -17,6 +17,9 @@
 > [!IMPORTANT]
 This is a live document.  Some of the sections are still a work in progress.  I will be continually updating it over time.
 
+> [!TIP]
+> AI was not used in the creation of this guide.
+
 ---
 
 # Table of Contents
